@@ -303,6 +303,14 @@ export default function TemplateBase({
                   <div className="text-right font-medium">{meta.reference}</div>
                 </>
               )}
+              {(invoice.customFields ?? []).map((f) =>
+                hasValue(f.label) || hasValue(f.value) ? (
+                  <EditZone key={f.id} target="custom" as="div" className="col-span-2 grid grid-cols-[120px_1fr] gap-y-1">
+                    <div className="text-ink-muted">{f.label}</div>
+                    <div className="text-right font-medium">{f.value}</div>
+                  </EditZone>
+                ) : null
+              )}
             </div>
           </EditZone>
         </div>
