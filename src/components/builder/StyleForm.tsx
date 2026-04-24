@@ -99,49 +99,36 @@ export function StyleForm() {
         </Field>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Field label="Logo">
-          <div className="flex items-center gap-3">
-            {inv.style.logoDataUrl && (
-              <img
-                src={inv.style.logoDataUrl}
-                alt="Logo preview"
-                className="h-10 w-10 rounded border border-slate-200 object-contain bg-white"
-              />
-            )}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleLogo(e.target.files?.[0] ?? null)}
-              className="text-xs"
+      <Field label="Logo">
+        <div className="flex items-center gap-3">
+          {inv.style.logoDataUrl && (
+            <img
+              src={inv.style.logoDataUrl}
+              alt="Logo preview"
+              className="h-10 w-10 rounded border border-slate-200 object-contain bg-white"
             />
-            {inv.style.logoDataUrl && (
-              <button
-                type="button"
-                className="btn-danger text-xs"
-                onClick={() => {
-                  setStyle({ logoDataUrl: undefined });
-                  if (fileRef.current) fileRef.current.value = '';
-                }}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        </Field>
-
-        <Field label="Columns" hint="Tax is configured separately in the Tax section.">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={!!inv.style.showDiscountColumn}
-              onChange={(e) => setStyle({ showDiscountColumn: e.target.checked })}
-            />
-            Show per-line Discount % column
-          </label>
-        </Field>
-      </div>
+          )}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleLogo(e.target.files?.[0] ?? null)}
+            className="text-xs"
+          />
+          {inv.style.logoDataUrl && (
+            <button
+              type="button"
+              className="btn-danger text-xs"
+              onClick={() => {
+                setStyle({ logoDataUrl: undefined });
+                if (fileRef.current) fileRef.current.value = '';
+              }}
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      </Field>
     </Section>
   );
 }
