@@ -9,7 +9,7 @@ export function SenderForm() {
     setInvoice((inv) => ({ ...inv, sender: { ...inv.sender, ...p } }));
 
   return (
-    <Section title="Your details" subtitle="sender">
+    <Section title="Your details" subtitle="sender" sectionId="sender">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field label="Label" hint="e.g. From, Contractor Name, Seller">
           <TextInput
