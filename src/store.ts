@@ -1,9 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Client, Invoice, LineItem, SavedClient, Signatory, TemplateId } from './types';
+import type {
+  Client,
+  CustomField,
+  Invoice,
+  LineItem,
+  SavedClient,
+  Signatory,
+  TemplateId,
+} from './types';
 import { newId } from './utils/id';
 import { nextNumber } from './utils/numbering';
 import { migratePersisted } from './utils/migrate';
+import { findIndustryPreset } from './utils/industries';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const plusDays = (iso: string, days: number) => {
@@ -123,6 +132,7 @@ export type SectionKey =
   | 'sender'
   | 'client'
   | 'meta'
+  | 'custom'
   | 'items'
   | 'tax'
   | 'totals'
@@ -175,6 +185,12 @@ interface Store {
   useClient: (id: string) => void;
   saveCurrentClient: () => SavedClient | null;
   startNewInvoiceFor: (clientId: string) => void;
+  // custom fields
+  addCustomField: (initial?: Partial<CustomField>) => void;
+  updateCustomField: (id: string, patch: Partial<CustomField>) => void;
+  removeCustomField: (id: string) => void;
+  // industry starter
+  startFromIndustry: (presetId: string) => void;
 }
 
 export const useStore = create<Store>()(
@@ -368,6 +384,48 @@ export const useStore = create<Store>()(
           void _createdAt;
           return {
             invoice: { ...blank, client: { ...rest } },
+            view: 'editor',
+          };
+        }),
+
+      addCustomField: (initial) =>
+        set((s) => ({
+          invoice: {
+            ...s.invoice,
+            customFields: [
+              ...(s.invoice.customFields ?? []),
+              {
+                id: newId(),
+                label: initial?.label ?? 'Label',
+                value: initial?.value ?? '',
+              },
+            ],
+          },
+        })),
+      updateCustomField: (id, patch) =>
+        set((s) => ({
+          invoice: {
+            ...s.invoice,
+            customFields: (s.invoice.customFields ?? []).map((f) =>
+              f.id === id ? { ...f, ...patch } : f
+            ),
+          },
+        })),
+      removeCustomField: (id) =>
+        set((s) => ({
+          invoice: {
+            ...s.invoice,
+            customFields: (s.invoice.customFields ?? []).filter((f) => f.id !== id),
+          },
+        })),
+
+      startFromIndustry: (presetId) =>
+        set(() => {
+          const preset = findIndustryPreset(presetId);
+          const blank = emptyInvoice();
+          if (!preset) return { invoice: blank, view: 'editor' };
+          return {
+            invoice: preset.apply(blank),
             view: 'editor',
           };
         }),

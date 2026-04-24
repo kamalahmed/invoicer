@@ -56,6 +56,7 @@ export function migrateInvoice(raw: unknown): Invoice {
     columnLabels: src.columnLabels ?? {},
     columnVisibility: src.columnVisibility ?? {},
     wideColumn: src.wideColumn ?? 'description',
+    customFields: Array.isArray(src.customFields) ? src.customFields : [],
     tax,
     totals: src.totals ?? {},
     bank: src.bank ?? {},

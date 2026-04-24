@@ -2,6 +2,7 @@ import { useStore } from '../store';
 import { StatCards } from '../components/dashboard/StatCards';
 import { InvoiceList } from '../components/dashboard/InvoiceList';
 import { ClientsList } from '../components/dashboard/ClientsList';
+import { IndustryStarters } from '../components/dashboard/IndustryStarters';
 
 export function Dashboard() {
   const library = useStore((s) => s.library);
@@ -42,7 +43,7 @@ export function Dashboard() {
         <section className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
           <h2 className="text-lg font-semibold">Welcome — let's get you an invoice.</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Start with a blank invoice, try the sample, or add a client to reuse later.
+            Pick an industry starter below, or start from scratch.
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             <button className="btn-primary" onClick={resetBlank}>
@@ -60,6 +61,8 @@ export function Dashboard() {
           </div>
         </section>
       )}
+
+      <IndustryStarters />
 
       <InvoiceList />
       <ClientsList />
