@@ -122,6 +122,16 @@ export const sampleInvoice = (): Invoice => {
   };
 };
 
+/** Pull numeric suffix off an invoice number so we can bump it. */
+function nextNumber(prev: string | undefined): string {
+  if (!prev) return `INV-${String(1).padStart(4, '0')}`;
+  const m = prev.match(/^(.*?)(\d+)(\D*)$/);
+  if (!m) return `${prev}-2`;
+  const [, head, digits, tail] = m;
+  const next = String(Number(digits) + 1).padStart(digits.length, '0');
+  return `${head}${next}${tail}`;
+}
+
 interface Store {
   invoice: Invoice;
   library: Invoice[]; // saved invoices
@@ -221,8 +231,19 @@ export const useStore = create<Store>()(
 
       saveCurrent: () =>
         set((s) => {
-          const stamped = { ...s.invoice, savedAt: Date.now() };
-          const exists = s.library.find((i) => i.id === stamped.id);
+          const exists = s.library.find((i) => i.id === s.invoice.id);
+          // First-time save of an invoice with no number: auto-increment from
+          // the latest numbered invoice in the library.
+          let number = s.invoice.meta.number;
+          if (!exists && !number) {
+            const latest = s.library.find((i) => i.meta.number)?.meta.number;
+            number = nextNumber(latest);
+          }
+          const stamped: Invoice = {
+            ...s.invoice,
+            savedAt: Date.now(),
+            meta: { ...s.invoice.meta, number },
+          };
           const library = exists
             ? s.library.map((i) => (i.id === stamped.id ? stamped : i))
             : [stamped, ...s.library];
