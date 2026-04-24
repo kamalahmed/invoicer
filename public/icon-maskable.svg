@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Full-bleed maskable icon: art is centered within the safe zone (inner ~80% circle) -->
+  <rect width="512" height="512" fill="#0f172a"/>
+  <g fill="#fff" transform="translate(140 152)">
+    <rect x="0" y="0" width="232" height="208" rx="16" fill="#f8fafc"/>
+    <rect x="24" y="28" width="140" height="14" rx="4" fill="#0ea5e9"/>
+    <rect x="24" y="56" width="184" height="9" rx="3" fill="#cbd5e1"/>
+    <rect x="24" y="76" width="120" height="9" rx="3" fill="#cbd5e1"/>
+    <rect x="24" y="108" width="184" height="9" rx="3" fill="#94a3b8"/>
+    <rect x="24" y="124" width="184" height="9" rx="3" fill="#94a3b8"/>
+    <rect x="24" y="140" width="120" height="9" rx="3" fill="#94a3b8"/>
+    <rect x="148" y="168" width="60" height="14" rx="4" fill="#16a34a"/>
+  </g>
+</svg>
