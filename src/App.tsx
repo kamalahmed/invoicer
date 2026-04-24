@@ -9,6 +9,7 @@ import { ItemsEditor } from './components/builder/ItemsEditor';
 import { TotalsForm } from './components/builder/TotalsForm';
 import { BankForm } from './components/builder/BankForm';
 import { SignaturesForm } from './components/builder/SignaturesForm';
+import { StyleForm } from './components/builder/StyleForm';
 
 export default function App() {
   const invoice = useStore((s) => s.invoice);
@@ -24,6 +25,7 @@ export default function App() {
             mobileTab === 'preview' ? 'hidden sm:block' : ''
           }`}
         >
+          <StyleForm />
           <SenderForm />
           <ClientForm />
           <MetaForm />
