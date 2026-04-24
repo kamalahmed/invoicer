@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type {
   Client,
   CustomField,
@@ -13,6 +13,7 @@ import { newId } from './utils/id';
 import { nextNumber } from './utils/numbering';
 import { migratePersisted } from './utils/migrate';
 import { findIndustryPreset } from './utils/industries';
+import { idbStorage } from './utils/storage';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const plusDays = (iso: string, days: number) => {
@@ -434,6 +435,9 @@ export const useStore = create<Store>()(
       name: 'invoicer:v1',
       // Bump when the Invoice shape changes in an incompatible way.
       version: 2,
+      // IndexedDB-backed storage with one-time migration from any existing
+      // localStorage blob. createJSONStorage handles the parse/stringify.
+      storage: createJSONStorage(() => idbStorage),
       // Only persist data — transient UI state (focus, mobile tab) resets
       // on reload so stale tokens don't trigger unwanted scrolls.
       partialize: (s) => ({

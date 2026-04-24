@@ -13,7 +13,8 @@ living documentation, not a snapshot.
 
 A single-page web app that builds, customises, saves and exports invoices —
 **entirely in the browser**. No backend. No API. No account. Data persists
-to `localStorage` only.
+to **IndexedDB** (with one-time migration from any pre-existing
+`localStorage` blob).
 
 **Live demo:** https://invoicer-one-zeta.vercel.app/
 
@@ -34,7 +35,7 @@ Core invariants:
 | Framework | **React 18** + **TypeScript** | Mature, small enough |
 | Bundler / dev | **Vite 5** | Fast HMR, ESM-first |
 | Styling | **Tailwind 3** | Single source of truth in JSX |
-| State | **Zustand 4** with `persist` middleware | One small slice, localStorage |
+| State | **Zustand 4** with `persist` middleware | One small slice, IndexedDB (with localStorage migration) |
 | Tests | **Vitest 2** | Native Vite integration |
 | PDF | **html2canvas** + **jsPDF** | Lazy-loaded to keep main bundle ~70 KB gz |
 
@@ -105,6 +106,7 @@ src/
     numbering.ts                # nextNumber()
     migrate.ts                  # migrateInvoice + migratePersisted
     pdf.ts                      # downloadInvoicePdf (lazy imports)
+    storage.ts                  # idb-keyval-backed StateStorage adapter
     id.ts                       # newId()
     __tests__/                  # Vitest suite — 51 tests as of last update
 
@@ -173,7 +175,12 @@ on `CustomField`.
 
 Single Zustand slice in [`src/store.ts`](./src/store.ts). Persisted under
 `invoicer:v1` with `version: 2` and a `migrate` function that runs through
-[`utils/migrate.ts`](./src/utils/migrate.ts).
+[`utils/migrate.ts`](./src/utils/migrate.ts). The persisted blob lives in
+**IndexedDB** via the adapter in [`utils/storage.ts`](./src/utils/storage.ts);
+on first read of a key, the adapter automatically pulls any pre-existing
+`localStorage` value over so users upgrading from older builds keep their
+data. `main.tsx` also calls `requestPersistentStorage()` to ask the browser
+not to evict the data under storage pressure.
 
 What's persisted (`partialize`): `invoice`, `library`, `clients`. Everything
 else (`view`, `mobileTab`, `focus`) is transient and resets on reload.
