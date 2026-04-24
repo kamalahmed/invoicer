@@ -33,10 +33,14 @@ export function PdfDownloadButton({
   invoice,
   variant = 'primary',
   label = 'Download PDF',
+  shortLabel,
 }: {
   invoice: Invoice;
   variant?: 'primary' | 'ghost';
   label?: string;
+  /** Optional short text shown below the `sm` breakpoint. Useful in the
+   *  toolbar where horizontal space is scarce on phones. */
+  shortLabel?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const cls = variant === 'primary' ? 'btn-primary' : 'btn-ghost text-xs';
@@ -59,7 +63,16 @@ export function PdfDownloadButton({
         }
       }}
     >
-      {busy ? 'Generating…' : label}
+      {busy ? (
+        'Generating…'
+      ) : shortLabel ? (
+        <>
+          <span className="sm:hidden">{shortLabel}</span>
+          <span className="hidden sm:inline">{label}</span>
+        </>
+      ) : (
+        label
+      )}
     </button>
   );
 }
