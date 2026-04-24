@@ -44,11 +44,12 @@ export function balanceDue(inv: Invoice): number {
 }
 
 export function money(amount: number, symbol = '$'): string {
-  const formatted = (isFinite(amount) ? amount : 0).toLocaleString(undefined, {
+  const safe = isFinite(amount) ? amount : 0;
+  const abs = Math.abs(safe).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return `${symbol}${amount < 0 ? '' : ''}${formatted}`.replace(`${symbol}-`, `-${symbol}`);
+  return safe < 0 ? `-${symbol}${abs}` : `${symbol}${abs}`;
 }
 
 export function formatDate(iso?: string): string {

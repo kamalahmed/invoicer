@@ -1,6 +1,7 @@
 import { useStore } from '../../store';
 import { Field, TextInput } from '../ui/Field';
 import { Section } from '../ui/Section';
+import { SignaturePad } from '../ui/SignaturePad';
 
 export function SignaturesForm() {
   const inv = useStore((s) => s.invoice);
@@ -57,6 +58,13 @@ export function SignaturesForm() {
                   onChange={(e) => updateSignatory(sig.id, { title: e.target.value })}
                 />
               </Field>
+            </div>
+            <div className="mt-3">
+              <div className="field-label">Signature</div>
+              <SignaturePad
+                value={sig.signatureDataUrl}
+                onChange={(v) => updateSignatory(sig.id, { signatureDataUrl: v })}
+              />
             </div>
             <div className="mt-2 text-right">
               <button className="btn-danger" onClick={() => removeSignatory(sig.id)}>
