@@ -58,6 +58,21 @@ describe('migrateInvoice()', () => {
     expect(migrated.columnLabels).toEqual({});
     expect(migrated.columnVisibility).toEqual({});
   });
+
+  it('defaults customFields to []', () => {
+    const migrated = migrateInvoice({ id: 'x' });
+    expect(migrated.customFields).toEqual([]);
+  });
+
+  it('preserves existing customFields on migration', () => {
+    const migrated = migrateInvoice({
+      id: 'x',
+      customFields: [{ id: 'f1', label: 'Project', value: 'Apollo' }],
+    });
+    expect(migrated.customFields).toEqual([
+      { id: 'f1', label: 'Project', value: 'Apollo' },
+    ]);
+  });
 });
 
 describe('migratePersisted()', () => {

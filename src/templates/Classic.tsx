@@ -153,6 +153,21 @@ export default function Classic({ invoice }: TemplateProps) {
         </EditZone>
       </div>
 
+      {(invoice.customFields?.length ?? 0) > 0 && (
+        <EditZone target="custom" className="mt-3 block">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-[13px]">
+            {invoice.customFields!.map((f) =>
+              hasValue(f.label) || hasValue(f.value) ? (
+                <div key={f.id} className="flex justify-between gap-4">
+                  <span className="text-ink-soft">{f.label}{f.label ? ':' : ''}</span>
+                  <span>{f.value}</span>
+                </div>
+              ) : null
+            )}
+          </div>
+        </EditZone>
+      )}
+
       {/* Items table */}
       <EditZone target="items" className="mt-6 block overflow-hidden rounded-sm">
         <table className="w-full text-[13px]" style={{ tableLayout: 'fixed' }}>
