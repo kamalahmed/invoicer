@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-100 text-ink font-sans antialiased;
+}
+
+/* Invoice "paper" is always rendered at a fixed desktop size */
+.invoice-paper {
+  width: 816px; /* ~8.5in @ 96dpi */
+  min-height: 1056px; /* ~11in */
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 20px 45px -20px rgba(15, 23, 42, 0.25),
+    0 4px 10px -4px rgba(15, 23, 42, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Printing: show only the invoice paper, at its natural size */
+@media print {
+  @page {
+    size: Letter;
+    margin: 0.4in;
+  }
+  body {
+    background: #fff;
+  }
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+  .print-root {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+  .invoice-paper {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+}
+
+/* Subtle scrollbar for preview area */
+.preview-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.preview-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+/* Inputs */
+.field-label {
+  @apply block text-xs font-semibold uppercase tracking-wide text-ink-muted mb-1;
+}
+.field-input {
+  @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-ink
+    placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2
+    focus:ring-slate-900/10 transition;
+}
+.field-textarea {
+  @apply field-input min-h-[70px] resize-y;
+}
+.btn {
+  @apply inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition;
+}
+.btn-primary {
+  @apply btn bg-ink text-white hover:bg-slate-800 active:bg-slate-900;
+}
+.btn-ghost {
+  @apply btn bg-white text-ink border border-slate-300 hover:bg-slate-50;
+}
+.btn-danger {
+  @apply btn text-red-600 hover:bg-red-50;
+}
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+}
