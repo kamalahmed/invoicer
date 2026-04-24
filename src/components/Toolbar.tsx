@@ -53,11 +53,12 @@ export function Toolbar() {
 
   return (
     <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+      {/* Top row: logo + Dashboard/Editor switcher (desktop) + primary actions */}
       <div className="mx-auto flex max-w-[1400px] items-center gap-2 px-3 py-2 sm:px-4">
         <button
           type="button"
           onClick={() => setView('dashboard')}
-          className="flex items-center gap-2"
+          className="flex shrink-0 items-center gap-2"
           title="Go to dashboard"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-ink text-white text-sm font-bold">
@@ -65,21 +66,25 @@ export function Toolbar() {
           </div>
           <div className="text-left">
             <div className="text-sm font-semibold leading-none">Invoicer</div>
-            <div className="text-[10px] text-ink-muted">Free invoice maker</div>
+            {/* Hide subtitle on small screens to free up width. */}
+            <div className="hidden text-[10px] text-ink-muted sm:block">
+              Free invoice maker
+            </div>
           </div>
         </button>
 
-        {/* View switcher */}
+        {/* Desktop view switcher — sits in the centre. On mobile it lives
+            in its own dedicated row below so it doesn't crowd the actions. */}
         <div className="mx-auto hidden sm:flex items-center gap-1 rounded-full bg-slate-100 p-1">
-          <ViewBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
+          <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
             Dashboard
-          </ViewBtn>
-          <ViewBtn active={view === 'editor'} onClick={() => setView('editor')}>
+          </PillBtn>
+          <PillBtn active={view === 'editor'} onClick={() => setView('editor')}>
             Editor
-          </ViewBtn>
+          </PillBtn>
         </div>
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-1">
           {inEditor && (
             <>
               <button className="btn-ghost hidden md:inline-flex" onClick={loadSample} title="Load sample">
@@ -116,30 +121,44 @@ export function Toolbar() {
               <button className="btn-ghost" onClick={saveCurrent}>
                 Save
               </button>
-              <PdfDownloadButton invoice={invoice} label="Download PDF" />
+              <PdfDownloadButton
+                invoice={invoice}
+                label="Download PDF"
+                shortLabel="PDF"
+              />
             </>
           )}
         </div>
       </div>
 
-      {/* Mobile secondary row — Edit/Preview tabs on small screens in the editor */}
-      {inEditor && (
-        <div className="sm:hidden flex items-center justify-center gap-1 pb-2">
-          <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
-            <ViewBtn active={mobileTab === 'edit'} onClick={() => setMobileTab('edit')}>
-              Edit
-            </ViewBtn>
-            <ViewBtn active={mobileTab === 'preview'} onClick={() => setMobileTab('preview')}>
-              Preview
-            </ViewBtn>
-          </div>
+      {/* Mobile-only secondary rows — view switcher always; Edit/Preview only
+          when in editor. Wrapped in a single horizontally-padded row so they
+          stack tidily without overflowing on narrow phones. */}
+      <div className="flex flex-wrap items-center justify-center gap-2 px-3 pb-2 sm:hidden">
+        <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
+          <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
+            Dashboard
+          </PillBtn>
+          <PillBtn active={view === 'editor'} onClick={() => setView('editor')}>
+            Editor
+          </PillBtn>
         </div>
-      )}
+        {inEditor && (
+          <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
+            <PillBtn active={mobileTab === 'edit'} onClick={() => setMobileTab('edit')}>
+              Edit
+            </PillBtn>
+            <PillBtn active={mobileTab === 'preview'} onClick={() => setMobileTab('preview')}>
+              Preview
+            </PillBtn>
+          </div>
+        )}
+      </div>
     </header>
   );
 }
 
-function ViewBtn({
+function PillBtn({
   active,
   onClick,
   children,
