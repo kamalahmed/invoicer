@@ -29,6 +29,12 @@ export interface Client {
   taxId?: string;
 }
 
+/** A reusable address-book entry. Stored separately from any single invoice. */
+export interface SavedClient extends Client {
+  id: string;
+  createdAt: number;
+}
+
 export interface LineItem {
   id: string;
   /** Short identifier used by the optional Serial/Ref column (SKU, date, #). */

@@ -80,5 +80,15 @@ describe('migratePersisted()', () => {
     expect(out?.invoice.id).toBe('a');
     expect(out?.library.map((i) => i.id)).toEqual(['b', 'c']);
     expect(out?.library.every((i) => i.tax !== undefined)).toBe(true);
+    // Older states don't have `clients` — default to [].
+    expect(out?.clients).toEqual([]);
+  });
+
+  it('preserves saved clients when present', () => {
+    const out = migratePersisted({
+      invoice: { id: 'a' },
+      clients: [{ id: 'c1', name: 'Contoso', createdAt: 0 }],
+    });
+    expect(out?.clients).toHaveLength(1);
   });
 });
