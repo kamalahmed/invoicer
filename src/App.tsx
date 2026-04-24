@@ -9,6 +9,7 @@ import { TotalsForm } from './components/builder/TotalsForm';
 import { BankForm } from './components/builder/BankForm';
 import { SignaturesForm } from './components/builder/SignaturesForm';
 import { StyleForm } from './components/builder/StyleForm';
+import { TaxForm } from './components/builder/TaxForm';
 import { Library } from './components/builder/Library';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
           <ClientForm />
           <MetaForm />
           <ItemsEditor />
+          <TaxForm />
           <TotalsForm />
           <BankForm />
           <SignaturesForm />

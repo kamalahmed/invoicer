@@ -131,14 +131,14 @@ export function StyleForm() {
           </div>
         </Field>
 
-        <Field label="Columns">
+        <Field label="Columns" hint="Tax is configured separately in the Tax section.">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              checked={inv.style.showTaxColumn}
-              onChange={(e) => setStyle({ showTaxColumn: e.target.checked })}
+              checked={!!inv.style.showDiscountColumn}
+              onChange={(e) => setStyle({ showDiscountColumn: e.target.checked })}
             />
-            Show Tax % / Discount columns
+            Show per-line Discount % column
           </label>
         </Field>
       </div>

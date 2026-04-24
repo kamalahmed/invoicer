@@ -101,7 +101,39 @@ export interface InvoiceStyle {
   logoDataUrl?: string;
   showBank: boolean;
   showSignatures: boolean;
-  showTaxColumn: boolean;
+  /**
+   * Shows the Discount % column on the items table. Tax column visibility
+   * is now driven by `Invoice.tax` (mode === 'per_line').
+   * `showTaxColumn` is kept for backwards compatibility with older saved
+   * invoices — on load it's migrated into `tax.enabled` + per-line mode.
+   */
+  showDiscountColumn?: boolean;
+  /** @deprecated — use `Invoice.tax` instead. Read only for migration. */
+  showTaxColumn?: boolean;
+}
+
+export type TaxMode = 'subtotal' | 'per_line';
+
+export interface InvoiceTax {
+  enabled: boolean;
+  /** Display label, e.g. "VAT", "GST", "Sales Tax". */
+  label: string;
+  /** Overall rate in percent. For split tax this is the combined rate. */
+  rate: number | '';
+  /** Whether tax is applied per line item or once on the subtotal. */
+  mode: TaxMode;
+  /** True if line prices already include this tax. */
+  inclusive: boolean;
+  /**
+   * Optional split into two components (e.g. India CGST + SGST at half the
+   * combined rate each). When enabled, the invoice shows two separate tax
+   * rows; totals are identical.
+   */
+  split?: {
+    enabled: boolean;
+    primaryLabel: string;
+    secondaryLabel: string;
+  };
 }
 
 export interface Invoice {
@@ -116,6 +148,7 @@ export interface Invoice {
   meta: InvoiceMeta;
   items: LineItem[];
   columnLabels?: ColumnLabels;
+  tax?: InvoiceTax;
   totals: InvoiceTotals;
   bank: BankDetails;
   signatories: Signatory[];

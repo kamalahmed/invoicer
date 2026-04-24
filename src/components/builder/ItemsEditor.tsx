@@ -5,12 +5,15 @@ import type { ColumnLabels, LineItem } from '../../types';
 import { Field, NumberInput, TextInput } from '../ui/Field';
 import { Section } from '../ui/Section';
 import { DEFAULT_COLUMN_LABELS, resolveColumnLabels } from '../../utils/labels';
+import { resolveTax } from '../../utils/tax';
 
 export function ItemsEditor() {
   const inv = useStore((s) => s.invoice);
   const { addItem, updateItem, removeItem, moveItem, setInvoice } = useStore();
   const showDays = inv.calcMode === 'days';
-  const showTax = inv.style.showTaxColumn;
+  const tax = resolveTax(inv);
+  const showTax = tax.enabled && tax.mode === 'per_line';
+  const showDiscount = !!inv.style.showDiscountColumn;
   const [labelsOpen, setLabelsOpen] = useState(false);
 
   const labels = resolveColumnLabels(inv);
@@ -189,24 +192,24 @@ export function ItemsEditor() {
                   />
                 </Field>
                 {showTax && (
-                  <>
-                    <Field label={labels.tax}>
-                      <NumberInput
-                        value={item.taxRate}
-                        onChange={(v) => updateItem(item.id, { taxRate: v })}
-                        step="0.01"
-                        disabled={overridden}
-                      />
-                    </Field>
-                    <Field label="Discount %">
-                      <NumberInput
-                        value={item.discount}
-                        onChange={(v) => updateItem(item.id, { discount: v })}
-                        step="0.01"
-                        disabled={overridden}
-                      />
-                    </Field>
-                  </>
+                  <Field label={labels.tax}>
+                    <NumberInput
+                      value={item.taxRate}
+                      onChange={(v) => updateItem(item.id, { taxRate: v })}
+                      step="0.01"
+                      disabled={overridden}
+                    />
+                  </Field>
+                )}
+                {showDiscount && (
+                  <Field label="Discount %">
+                    <NumberInput
+                      value={item.discount}
+                      onChange={(v) => updateItem(item.id, { discount: v })}
+                      step="0.01"
+                      disabled={overridden}
+                    />
+                  </Field>
                 )}
                 <Field
                   label={labels.total}
