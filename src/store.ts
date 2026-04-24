@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Invoice, LineItem, Signatory, TemplateId } from './types';
 import { newId } from './utils/id';
+import { nextNumber } from './utils/numbering';
+import { migratePersisted } from './utils/migrate';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const plusDays = (iso: string, days: number) => {
@@ -115,16 +117,6 @@ export const sampleInvoice = (): Invoice => {
     },
   };
 };
-
-/** Pull numeric suffix off an invoice number so we can bump it. */
-function nextNumber(prev: string | undefined): string {
-  if (!prev) return `INV-${String(1).padStart(4, '0')}`;
-  const m = prev.match(/^(.*?)(\d+)(\D*)$/);
-  if (!m) return `${prev}-2`;
-  const [, head, digits, tail] = m;
-  const next = String(Number(digits) + 1).padStart(digits.length, '0');
-  return `${head}${next}${tail}`;
-}
 
 export type SectionKey =
   | 'style'
@@ -291,9 +283,15 @@ export const useStore = create<Store>()(
     }),
     {
       name: 'invoicer:v1',
+      // Bump when the Invoice shape changes in an incompatible way.
+      version: 2,
       // Only persist data — transient UI state (focus, mobile tab) resets
       // on reload so stale tokens don't trigger unwanted scrolls.
       partialize: (s) => ({ invoice: s.invoice, library: s.library }),
+      // Normalize older invoice shapes on load. Older browsers may have
+      // state without `tax`, `columnVisibility`, etc. The migrator fills in
+      // defaults and removes the deprecated `style.showTaxColumn` flag.
+      migrate: (persisted) => migratePersisted(persisted) ?? (persisted as never),
     }
   )
 );
