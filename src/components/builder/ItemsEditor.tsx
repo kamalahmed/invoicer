@@ -124,13 +124,22 @@ export function ItemsEditor() {
                   />
                   Rate
                 </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={cols.discount}
+                    onChange={(e) =>
+                      setInvoice((i) => ({
+                        ...i,
+                        style: { ...i.style, showDiscountColumn: e.target.checked },
+                      }))
+                    }
+                  />
+                  Discount %
+                </label>
                 <label className="flex items-center gap-2 text-ink-muted" title="Driven by the Tax section">
                   <input type="checkbox" checked={cols.tax} disabled readOnly />
                   Tax % (from Tax)
-                </label>
-                <label className="flex items-center gap-2 text-ink-muted" title="Driven by Template & branding → Columns">
-                  <input type="checkbox" checked={cols.discount} disabled readOnly />
-                  Discount % (from Style)
                 </label>
               </div>
               <p className="mt-1 text-[11px] text-ink-muted">
