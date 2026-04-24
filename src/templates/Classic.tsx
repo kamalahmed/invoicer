@@ -1,10 +1,14 @@
 import type { TemplateProps } from './types';
 import {
   balanceDue,
+  discountTotal,
   grandTotal,
   money,
+  subtotal,
+  taxTotal,
 } from '../utils/format';
 import { resolveColumnLabels } from '../utils/labels';
+import { resolveTax } from '../utils/tax';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
 import { EditZone } from '../components/ui/EditZone';
 
@@ -18,6 +22,9 @@ export default function Classic({ invoice }: TemplateProps) {
   const showDays = calcMode === 'days';
   const sym = invoice.currencySymbol;
   const labels = resolveColumnLabels(invoice);
+  const tax = resolveTax(invoice);
+  const showTaxCol = tax.enabled && tax.mode === 'per_line';
+  const showDiscountCol = !!style.showDiscountColumn;
 
   return (
     <div
@@ -140,8 +147,11 @@ export default function Classic({ invoice }: TemplateProps) {
                 {showDays ? labels.daysWorked : labels.quantity}
               </th>
               <th className="px-3 py-2 text-right font-semibold">{labels.rate}</th>
-              {style.showTaxColumn && (
-                <th className="px-3 py-2 text-right font-semibold">{labels.tax}</th>
+              {showTaxCol && (
+                <th className="px-3 py-2 text-right font-semibold">{tax.label} %</th>
+              )}
+              {showDiscountCol && (
+                <th className="px-3 py-2 text-right font-semibold">Discount %</th>
               )}
               <th className="px-3 py-2 text-right font-semibold">{labels.total}</th>
             </tr>
@@ -170,9 +180,14 @@ export default function Classic({ invoice }: TemplateProps) {
                         maximumFractionDigits: 2,
                       })}
                 </td>
-                {style.showTaxColumn && (
+                {showTaxCol && (
                   <td className="px-3 py-2 text-right align-top">
                     {it.taxRate === '' || it.taxRate == null ? '' : `${it.taxRate}%`}
+                  </td>
+                )}
+                {showDiscountCol && (
+                  <td className="px-3 py-2 text-right align-top">
+                    {it.discount === '' || it.discount == null ? '' : `${it.discount}%`}
                   </td>
                 )}
                 <td className="px-3 py-2 text-right align-top">{lineTotalStr(it, invoice)}</td>
@@ -185,6 +200,37 @@ export default function Classic({ invoice }: TemplateProps) {
       {/* Totals */}
       <EditZone target="totals" className="mt-10 flex items-start justify-end border-t border-slate-300 pt-4">
         <div className="min-w-[280px] text-[13px]">
+          {tax.enabled && tax.mode === 'subtotal' && (
+            <>
+              <div className="flex justify-between py-1">
+                <span>Subtotal</span>
+                <span>{money(subtotal(invoice) - discountTotal(invoice), sym)}</span>
+              </div>
+              {tax.split?.enabled ? (
+                <>
+                  <div className="flex justify-between py-1">
+                    <span>
+                      {tax.split.primaryLabel} ({(Number(tax.rate) / 2).toFixed(2)}%)
+                    </span>
+                    <span>{money(taxTotal(invoice) / 2, sym)}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span>
+                      {tax.split.secondaryLabel} ({(Number(tax.rate) / 2).toFixed(2)}%)
+                    </span>
+                    <span>{money(taxTotal(invoice) / 2, sym)}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex justify-between py-1">
+                  <span>
+                    {tax.label} ({Number(tax.rate)}%){tax.inclusive ? ' · incl.' : ''}
+                  </span>
+                  <span>{money(taxTotal(invoice), sym)}</span>
+                </div>
+              )}
+            </>
+          )}
           <div className="flex justify-between py-1">
             <span>TOTAL</span>
             <span>{money(grandTotal(invoice), sym)}</span>
