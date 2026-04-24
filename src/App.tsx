@@ -24,7 +24,7 @@ export default function App() {
         {/* Builder panel */}
         <section
           className={`no-print w-full sm:w-[440px] md:w-[480px] lg:w-[520px] shrink-0 space-y-3 ${
-            mobileTab === 'preview' ? 'hidden sm:block' : ''
+            mobileTab === 'preview' ? 'hidden' : ''
           }`}
         >
           <StyleForm />
