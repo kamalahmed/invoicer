@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
 import { hasOverride, lineTotal, money } from '../../utils/format';
-import type { ColumnLabels, LineItem } from '../../types';
+import type {
+  ColumnLabels,
+  ColumnVisibility,
+  LineItem,
+  WideColumn,
+} from '../../types';
 import { Field, NumberInput, TextInput } from '../ui/Field';
 import { Section } from '../ui/Section';
 import { DEFAULT_COLUMN_LABELS, resolveColumnLabels } from '../../utils/labels';
-import { resolveTax } from '../../utils/tax';
+import { resolveColumns } from '../../utils/columns';
 
 export function ItemsEditor() {
   const inv = useStore((s) => s.invoice);
   const { addItem, updateItem, removeItem, moveItem, setInvoice } = useStore();
   const showDays = inv.calcMode === 'days';
-  const tax = resolveTax(inv);
-  const showTax = tax.enabled && tax.mode === 'per_line';
-  const showDiscount = !!inv.style.showDiscountColumn;
+  const cols = resolveColumns(inv);
   const [labelsOpen, setLabelsOpen] = useState(false);
+  const [columnsOpen, setColumnsOpen] = useState(false);
 
   const labels = resolveColumnLabels(inv);
 
@@ -24,12 +28,19 @@ export function ItemsEditor() {
       columnLabels: { ...(i.columnLabels ?? {}), [key]: v },
     }));
 
+  const setVisibility = (key: keyof ColumnVisibility, v: boolean) =>
+    setInvoice((i) => ({
+      ...i,
+      columnVisibility: { ...(i.columnVisibility ?? {}), [key]: v },
+    }));
+
+  const setWide = (w: WideColumn) =>
+    setInvoice((i) => ({ ...i, wideColumn: w }));
+
   const qtyKey: 'quantity' | 'daysWorked' = showDays ? 'daysWorked' : 'quantity';
 
   const onQtyChange = (item: LineItem, v: number | '') => {
     const patch: Partial<LineItem> = { [qtyKey]: v } as Partial<LineItem>;
-    // If the line has a manual total override, re-derive the rate from it so
-    // the override stays the fixed truth.
     if (hasOverride(item) && typeof v === 'number' && v !== 0) {
       patch.rate = Number((Number(item.totalOverride) / v).toFixed(4));
     }
@@ -37,8 +48,6 @@ export function ItemsEditor() {
   };
 
   const onRateChange = (item: LineItem, v: number | '') => {
-    // Editing the rate explicitly drops any manual total override and
-    // returns the line to auto (qty × rate) math.
     updateItem(item.id, { rate: v, totalOverride: '' });
   };
 
@@ -49,8 +58,6 @@ export function ItemsEditor() {
       return;
     }
     const patch: Partial<LineItem> = { totalOverride: v };
-    // If a quantity is already set, update the rate so it stays consistent
-    // with the manually-entered total.
     if (qty !== 0) {
       patch.rate = Number((Number(v) / qty).toFixed(4));
     }
@@ -68,6 +75,88 @@ export function ItemsEditor() {
         </button>
       }
     >
+      {/* Columns & width — hide columns, choose which column gets the extra width. */}
+      <div className="rounded-lg border border-slate-200 bg-slate-50">
+        <button
+          type="button"
+          onClick={() => setColumnsOpen((o) => !o)}
+          className="flex w-full items-center justify-between px-3 py-2 text-left text-xs font-semibold text-ink-soft"
+        >
+          <span>Columns &amp; width</span>
+          <span className="text-ink-muted">{columnsOpen ? 'Hide' : 'Adjust'}</span>
+        </button>
+        {columnsOpen && (
+          <div className="space-y-3 border-t border-slate-200 p-3">
+            <div>
+              <div className="field-label">Show columns</div>
+              <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={cols.serial}
+                    onChange={(e) => setVisibility('serial', e.target.checked)}
+                  />
+                  Serial / ref
+                </label>
+                {showDays && (
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={cols.calendarDays}
+                      onChange={(e) => setVisibility('calendarDays', e.target.checked)}
+                    />
+                    Calendar days
+                  </label>
+                )}
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={cols.qty}
+                    onChange={(e) => setVisibility('qty', e.target.checked)}
+                  />
+                  {showDays ? 'Days worked' : 'Qty'}
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={cols.rate}
+                    onChange={(e) => setVisibility('rate', e.target.checked)}
+                  />
+                  Rate
+                </label>
+                <label className="flex items-center gap-2 text-ink-muted" title="Driven by the Tax section">
+                  <input type="checkbox" checked={cols.tax} disabled readOnly />
+                  Tax % (from Tax)
+                </label>
+                <label className="flex items-center gap-2 text-ink-muted" title="Driven by Template & branding → Columns">
+                  <input type="checkbox" checked={cols.discount} disabled readOnly />
+                  Discount % (from Style)
+                </label>
+              </div>
+              <p className="mt-1 text-[11px] text-ink-muted">
+                Description and Total stay visible on every invoice.
+              </p>
+            </div>
+
+            <Field
+              label="Which column should take the extra width?"
+              hint="Others stay compact. Default is Description — matches the classic contractor layout."
+            >
+              <select
+                className="field-input"
+                value={cols.wide}
+                onChange={(e) => setWide(e.target.value as WideColumn)}
+              >
+                <option value="description">Description (default)</option>
+                <option value="serial" disabled={!cols.serial}>
+                  Serial / ref {cols.serial ? '' : '— enable the column first'}
+                </option>
+              </select>
+            </Field>
+          </div>
+        )}
+      </div>
+
       {/* Column labels — editable, with the defaults surfaced as placeholders. */}
       <div className="rounded-lg border border-slate-200 bg-slate-50">
         <button
@@ -80,6 +169,15 @@ export function ItemsEditor() {
         </button>
         {labelsOpen && (
           <div className="grid grid-cols-2 gap-2 border-t border-slate-200 p-3 sm:grid-cols-3">
+            {cols.serial && (
+              <Field label="Serial / ref">
+                <TextInput
+                  value={inv.columnLabels?.serial ?? ''}
+                  placeholder={DEFAULT_COLUMN_LABELS.serial}
+                  onChange={(e) => setLabel('serial', e.target.value)}
+                />
+              </Field>
+            )}
             <Field label="Description">
               <TextInput
                 value={inv.columnLabels?.description ?? ''}
@@ -87,7 +185,7 @@ export function ItemsEditor() {
                 onChange={(e) => setLabel('description', e.target.value)}
               />
             </Field>
-            {showDays && (
+            {cols.calendarDays && (
               <Field label="Calendar days">
                 <TextInput
                   value={inv.columnLabels?.calendarDays ?? ''}
@@ -96,21 +194,25 @@ export function ItemsEditor() {
                 />
               </Field>
             )}
-            <Field label={showDays ? 'Days worked' : 'Quantity'}>
-              <TextInput
-                value={(showDays ? inv.columnLabels?.daysWorked : inv.columnLabels?.quantity) ?? ''}
-                placeholder={showDays ? DEFAULT_COLUMN_LABELS.daysWorked : DEFAULT_COLUMN_LABELS.quantity}
-                onChange={(e) => setLabel(showDays ? 'daysWorked' : 'quantity', e.target.value)}
-              />
-            </Field>
-            <Field label="Rate">
-              <TextInput
-                value={inv.columnLabels?.rate ?? ''}
-                placeholder={showDays ? DEFAULT_COLUMN_LABELS.rateDays : DEFAULT_COLUMN_LABELS.rate}
-                onChange={(e) => setLabel('rate', e.target.value)}
-              />
-            </Field>
-            {showTax && (
+            {cols.qty && (
+              <Field label={showDays ? 'Days worked' : 'Quantity'}>
+                <TextInput
+                  value={(showDays ? inv.columnLabels?.daysWorked : inv.columnLabels?.quantity) ?? ''}
+                  placeholder={showDays ? DEFAULT_COLUMN_LABELS.daysWorked : DEFAULT_COLUMN_LABELS.quantity}
+                  onChange={(e) => setLabel(showDays ? 'daysWorked' : 'quantity', e.target.value)}
+                />
+              </Field>
+            )}
+            {cols.rate && (
+              <Field label="Rate">
+                <TextInput
+                  value={inv.columnLabels?.rate ?? ''}
+                  placeholder={showDays ? DEFAULT_COLUMN_LABELS.rateDays : DEFAULT_COLUMN_LABELS.rate}
+                  onChange={(e) => setLabel('rate', e.target.value)}
+                />
+              </Field>
+            )}
+            {cols.tax && (
               <Field label="Tax column">
                 <TextInput
                   value={inv.columnLabels?.tax ?? ''}
@@ -162,6 +264,20 @@ export function ItemsEditor() {
                   </button>
                 </div>
               </div>
+
+              {cols.serial && (
+                <Field
+                  label={labels.serial}
+                  hint={`Short label — SKU, date, or any short identifier. Leave blank to use row ${idx + 1}.`}
+                >
+                  <TextInput
+                    value={item.ref ?? ''}
+                    onChange={(e) => updateItem(item.id, { ref: e.target.value })}
+                    placeholder={String(idx + 1)}
+                  />
+                </Field>
+              )}
+
               <Field label={labels.description}>
                 <TextInput
                   value={item.description}
@@ -170,7 +286,7 @@ export function ItemsEditor() {
                 />
               </Field>
               <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {showDays && (
+                {cols.calendarDays && (
                   <Field label={labels.calendarDays}>
                     <NumberInput
                       value={item.calendarDays}
@@ -178,20 +294,24 @@ export function ItemsEditor() {
                     />
                   </Field>
                 )}
-                <Field label={showDays ? labels.daysWorked : labels.quantity}>
-                  <NumberInput
-                    value={showDays ? item.daysWorked : item.quantity}
-                    onChange={(v) => onQtyChange(item, v)}
-                  />
-                </Field>
-                <Field label={labels.rate}>
-                  <NumberInput
-                    value={item.rate}
-                    onChange={(v) => onRateChange(item, v)}
-                    step="0.01"
-                  />
-                </Field>
-                {showTax && (
+                {cols.qty && (
+                  <Field label={showDays ? labels.daysWorked : labels.quantity}>
+                    <NumberInput
+                      value={showDays ? item.daysWorked : item.quantity}
+                      onChange={(v) => onQtyChange(item, v)}
+                    />
+                  </Field>
+                )}
+                {cols.rate && (
+                  <Field label={labels.rate}>
+                    <NumberInput
+                      value={item.rate}
+                      onChange={(v) => onRateChange(item, v)}
+                      step="0.01"
+                    />
+                  </Field>
+                )}
+                {cols.tax && (
                   <Field label={labels.tax}>
                     <NumberInput
                       value={item.taxRate}
@@ -201,7 +321,7 @@ export function ItemsEditor() {
                     />
                   </Field>
                 )}
-                {showDiscount && (
+                {cols.discount && (
                   <Field label="Discount %">
                     <NumberInput
                       value={item.discount}
@@ -223,8 +343,7 @@ export function ItemsEditor() {
                     value={
                       overridden
                         ? item.totalOverride
-                        : // show the auto value but keep the field editable
-                          Number(lineTotal(item, inv.calcMode).toFixed(2))
+                        : Number(lineTotal(item, inv.calcMode).toFixed(2))
                     }
                     onChange={(v) => onTotalChange(item, v)}
                     step="0.01"

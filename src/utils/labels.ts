@@ -1,6 +1,7 @@
 import type { Invoice, ColumnLabels } from '../types';
 
 export const DEFAULT_COLUMN_LABELS = {
+  serial: '#',
   description: 'Description',
   calendarDays: 'Calendar Days',
   quantity: 'Qty',
@@ -12,6 +13,7 @@ export const DEFAULT_COLUMN_LABELS = {
 } as const;
 
 export interface ResolvedLabels {
+  serial: string;
   description: string;
   calendarDays: string;
   quantity: string;
@@ -36,6 +38,7 @@ export function resolveColumnLabels(inv: Invoice): ResolvedLabels {
   const c: ColumnLabels = inv.columnLabels ?? {};
   const days = inv.calcMode === 'days';
   return {
+    serial: firstDefined(c.serial) ?? DEFAULT_COLUMN_LABELS.serial,
     description: firstDefined(c.description) ?? DEFAULT_COLUMN_LABELS.description,
     calendarDays: firstDefined(c.calendarDays) ?? DEFAULT_COLUMN_LABELS.calendarDays,
     quantity: firstDefined(c.quantity) ?? DEFAULT_COLUMN_LABELS.quantity,
