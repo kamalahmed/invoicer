@@ -132,13 +132,34 @@ function nextNumber(prev: string | undefined): string {
   return `${head}${next}${tail}`;
 }
 
+export type SectionKey =
+  | 'style'
+  | 'sender'
+  | 'client'
+  | 'meta'
+  | 'items'
+  | 'totals'
+  | 'bank'
+  | 'signatures'
+  | 'library';
+
+export interface FocusState {
+  key: SectionKey | null;
+  token: number; // bumped on every focus call so repeated clicks re-trigger
+  itemId?: string; // optional — when focusing items, deep-link to a row
+}
+
 interface Store {
   invoice: Invoice;
   library: Invoice[]; // saved invoices
+  mobileTab: 'edit' | 'preview';
+  focus: FocusState;
   setInvoice: (updater: (inv: Invoice) => Invoice) => void;
   replaceInvoice: (inv: Invoice) => void;
   resetBlank: () => void;
   loadSample: () => void;
+  setMobileTab: (tab: 'edit' | 'preview') => void;
+  focusSection: (key: SectionKey, opts?: { itemId?: string }) => void;
   // items
   addItem: () => void;
   updateItem: (id: string, patch: Partial<LineItem>) => void;
@@ -162,11 +183,20 @@ export const useStore = create<Store>()(
     (set, get) => ({
       invoice: sampleInvoice(),
       library: [],
+      mobileTab: 'edit',
+      focus: { key: null, token: 0 },
 
       setInvoice: (updater) => set({ invoice: updater(get().invoice) }),
       replaceInvoice: (invoice) => set({ invoice }),
       resetBlank: () => set({ invoice: emptyInvoice() }),
       loadSample: () => set({ invoice: sampleInvoice() }),
+      setMobileTab: (mobileTab) => set({ mobileTab }),
+      focusSection: (key, opts) =>
+        set(() => ({
+          focus: { key, token: Date.now(), itemId: opts?.itemId },
+          // Flip to the Edit tab on mobile so the section is actually reachable.
+          mobileTab: 'edit',
+        })),
 
       addItem: () =>
         set((s) => ({
@@ -264,6 +294,11 @@ export const useStore = create<Store>()(
       deleteFromLibrary: (id) =>
         set((s) => ({ library: s.library.filter((i) => i.id !== id) })),
     }),
-    { name: 'invoicer:v1' }
+    {
+      name: 'invoicer:v1',
+      // Only persist data — transient UI state (focus, mobile tab) resets
+      // on reload so stale tokens don't trigger unwanted scrolls.
+      partialize: (s) => ({ invoice: s.invoice, library: s.library }),
+    }
   )
 );

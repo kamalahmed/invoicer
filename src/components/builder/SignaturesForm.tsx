@@ -14,6 +14,7 @@ export function SignaturesForm() {
     <Section
       title="Signatures"
       subtitle={`${inv.signatories.length} block${inv.signatories.length === 1 ? '' : 's'}`}
+      sectionId="signatures"
       action={
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-ink-soft">

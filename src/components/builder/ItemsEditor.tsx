@@ -58,6 +58,7 @@ export function ItemsEditor() {
     <Section
       title="Line items"
       subtitle={`${inv.items.length} row${inv.items.length === 1 ? '' : 's'}`}
+      sectionId="items"
       action={
         <button onClick={addItem} className="btn-primary">
           + Add item

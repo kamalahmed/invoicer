@@ -11,6 +11,7 @@ export function Library() {
     <Section
       title="Saved invoices"
       subtitle={`${library.length} in library`}
+      sectionId="library"
       action={
         <button className="btn-primary" onClick={saveCurrent}>
           Save current

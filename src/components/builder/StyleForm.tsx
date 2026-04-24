@@ -34,7 +34,7 @@ export function StyleForm() {
   };
 
   return (
-    <Section title="Template & branding" subtitle={inv.style.templateId}>
+    <Section title="Template & branding" subtitle={inv.style.templateId} sectionId="style">
       <div>
         <div className="field-label">Template</div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">

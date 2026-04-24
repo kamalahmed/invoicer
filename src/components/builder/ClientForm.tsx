@@ -8,7 +8,7 @@ export function ClientForm() {
   const patch = (p: Partial<typeof client>) =>
     setInvoice((inv) => ({ ...inv, client: { ...inv.client, ...p } }));
   return (
-    <Section title="Bill to" subtitle="client">
+    <Section title="Bill to" subtitle="client" sectionId="client">
       <Field label="Name / Company">
         <TextInput
           value={client.name}
