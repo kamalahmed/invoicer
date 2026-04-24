@@ -31,6 +31,8 @@ export interface Client {
 
 export interface LineItem {
   id: string;
+  /** Short identifier used by the optional Serial/Ref column (SKU, date, #). */
+  ref?: string;
   description: string;
   calendarDays?: number | '';
   daysWorked?: number | '';
@@ -50,6 +52,7 @@ export interface LineItem {
 export type CalcMode = 'days' | 'quantity';
 
 export interface ColumnLabels {
+  serial?: string; // default "#"
   description?: string;
   calendarDays?: string;
   quantity?: string; // used when calcMode === 'quantity'
@@ -58,6 +61,25 @@ export interface ColumnLabels {
   tax?: string;
   total?: string;
 }
+
+/**
+ * Visibility flags for each line-item table column. Some columns
+ * (description, total) are always shown. Tax and discount visibility are
+ * driven elsewhere (tax mode and `style.showDiscountColumn` respectively).
+ */
+export interface ColumnVisibility {
+  serial?: boolean; // default false
+  calendarDays?: boolean; // default true (only applies in days mode)
+  qty?: boolean; // default true
+  rate?: boolean; // default true
+}
+
+/**
+ * Which column should absorb the extra horizontal space. Other columns get
+ * compact fixed widths via colgroup. Default is 'description' — matches the
+ * original contractor-sample layout.
+ */
+export type WideColumn = 'description' | 'serial';
 
 export interface BankDetails {
   accountNumber?: string;
@@ -148,6 +170,8 @@ export interface Invoice {
   meta: InvoiceMeta;
   items: LineItem[];
   columnLabels?: ColumnLabels;
+  columnVisibility?: ColumnVisibility;
+  wideColumn?: WideColumn;
   tax?: InvoiceTax;
   totals: InvoiceTotals;
   bank: BankDetails;
