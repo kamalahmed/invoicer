@@ -80,6 +80,12 @@ export interface ColumnVisibility {
   rate?: boolean; // default true
 }
 
+export interface CustomField {
+  id: string;
+  label: string;
+  value: string;
+}
+
 /**
  * Which column should absorb the extra horizontal space. Other columns get
  * compact fixed widths via colgroup. Default is 'description' — matches the
@@ -178,6 +184,8 @@ export interface Invoice {
   columnLabels?: ColumnLabels;
   columnVisibility?: ColumnVisibility;
   wideColumn?: WideColumn;
+  /** User-defined label/value rows shown in the invoice meta area. */
+  customFields?: CustomField[];
   tax?: InvoiceTax;
   totals: InvoiceTotals;
   bank: BankDetails;

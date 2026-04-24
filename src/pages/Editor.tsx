@@ -9,6 +9,7 @@ import { BankForm } from '../components/builder/BankForm';
 import { SignaturesForm } from '../components/builder/SignaturesForm';
 import { StyleForm } from '../components/builder/StyleForm';
 import { TaxForm } from '../components/builder/TaxForm';
+import { CustomFieldsForm } from '../components/builder/CustomFieldsForm';
 
 export function Editor() {
   const invoice = useStore((s) => s.invoice);
@@ -28,6 +29,7 @@ export function Editor() {
         <SenderForm />
         <ClientForm />
         <MetaForm />
+        <CustomFieldsForm />
         <ItemsEditor />
         <TaxForm />
         <TotalsForm />
