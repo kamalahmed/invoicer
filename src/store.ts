@@ -4,6 +4,11 @@ import type { Invoice, LineItem, Signatory, TemplateId } from './types';
 import { newId } from './utils/id';
 
 const today = () => new Date().toISOString().slice(0, 10);
+const plusDays = (iso: string, days: number) => {
+  const d = new Date(iso);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+};
 
 export const emptyInvoice = (): Invoice => ({
   id: newId(),
@@ -24,14 +29,16 @@ export const emptyInvoice = (): Invoice => ({
   items: [
     {
       id: newId(),
-      description: 'Professional services',
+      description: '',
       quantity: 1,
       rate: 0,
     },
   ],
   totals: { paid: '', adjustment: '', adjustmentLabel: 'Adjustment', notes: '', terms: '' },
   bank: {},
-  signatories: [],
+  // A single blank signature block is shown by default so users can see where
+  // it lives on the invoice and decide to fill it in or remove it.
+  signatories: [{ id: newId(), label: 'Authorized Signature', name: '', title: '' }],
   tax: {
     enabled: false,
     label: 'Tax',
@@ -44,87 +51,67 @@ export const emptyInvoice = (): Invoice => ({
     accent: '#0f172a',
     fontFamily: 'sans',
     showBank: false,
-    showSignatures: false,
+    showSignatures: true,
     showDiscountColumn: false,
   },
 });
 
-// The sample matches the attached contractor invoice.
+/**
+ * A friendly, generic demo invoice shown on first load and when the user
+ * clicks "Sample". Uses fictitious companies so the data is obviously
+ * placeholder text that needs replacing, but still reads like a real
+ * invoice so new users understand what goes where.
+ */
 export const sampleInvoice = (): Invoice => {
-  const id = newId();
+  const base = emptyInvoice();
+  const issued = today();
   return {
-    ...emptyInvoice(),
-    id,
+    ...base,
     title: 'INVOICE',
     currency: 'USD',
-    currencySymbol: '',
-    calcMode: 'days',
+    currencySymbol: '$',
+    calcMode: 'quantity',
     sender: {
-      name: 'Kamal Ahmed',
-      label: 'Contractor Name',
-      contractType: 'Independent Contractor',
-      address: 'Dubai',
-      contact: '052 277',
-      email: 'kamal@nara.ae',
+      label: 'From',
+      name: 'Acme Studio',
+      address: '123 Market Street, Suite 200\nSan Francisco, CA 94103',
+      contact: '+1 (555) 123-4567',
+      email: 'billing@acmestudio.example',
+      website: 'acmestudio.example',
     },
     client: {
-      name: 'Nara Desert Escape Picnics & Camping Organizing LLC.',
-      address: '208, Building 12, Bay Square,\nBusiness Bay,\nDubai.',
+      name: 'Northwind Traders, Inc.',
+      address: '500 Terry Francois Blvd\nSan Francisco, CA 94158',
+      email: 'accounts@northwind.example',
     },
     meta: {
-      number: '',
-      date: today(),
-      period: 'Apr-26',
-      department: 'Digital Innovation',
+      number: 'INV-0001',
+      date: issued,
+      dueDate: plusDays(issued, 14),
     },
     items: [
       {
         id: newId(),
-        description: 'No. of days worked',
-        calendarDays: 31,
-        daysWorked: '',
-        rate: 322.58,
-      },
-      {
-        id: newId(),
-        description: '',
-        calendarDays: 30,
-        daysWorked: 30,
-        rate: 333.33,
-      },
-      {
-        id: newId(),
-        description: '',
-        calendarDays: 28,
-        daysWorked: '',
-        rate: 3571.43,
+        description: 'Website design and development',
+        quantity: 1,
+        rate: 1500,
       },
     ],
-    totals: { paid: 0, adjustment: '', adjustmentLabel: 'Adjustment' },
-    bank: {
-      accountNumber: '0191 ••••••',
-      bankName: 'Mashreq Bank',
-      accountTitle: 'Kamal Ahmed',
-      iban: 'AE60 03•• ••••',
-      swift: 'N/A',
+    totals: {
+      paid: '',
+      adjustment: '',
+      adjustmentLabel: 'Adjustment',
+      notes: 'Thank you for your business.',
+      terms: 'Payment due within 14 days.',
     },
+    bank: {},
     signatories: [
-      { id: newId(), label: 'ICA Signature', name: '', title: '' },
-      { id: newId(), label: 'Line Manager Signature', name: '', title: '' },
-      {
-        id: newId(),
-        label: '',
-        name: 'Dushanthi Wijesekara',
-        title: 'Head of Human Resources',
-      },
+      { id: newId(), label: 'Authorized Signature', name: '', title: '' },
     ],
     style: {
-      templateId: 'classic',
-      accent: '#0f172a',
-      fontFamily: 'sans',
-      showBank: true,
+      ...base.style,
+      showBank: false,
       showSignatures: true,
-      showDiscountColumn: false,
     },
   };
 };
