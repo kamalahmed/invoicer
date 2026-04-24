@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Invoice, LineItem, Signatory, TemplateId } from './types';
+import type { Client, Invoice, LineItem, SavedClient, Signatory, TemplateId } from './types';
 import { newId } from './utils/id';
 import { nextNumber } from './utils/numbering';
 import { migratePersisted } from './utils/migrate';
@@ -136,15 +136,20 @@ export interface FocusState {
   itemId?: string; // optional — when focusing items, deep-link to a row
 }
 
+export type View = 'dashboard' | 'editor';
+
 interface Store {
   invoice: Invoice;
   library: Invoice[]; // saved invoices
+  clients: SavedClient[]; // address book
+  view: View;
   mobileTab: 'edit' | 'preview';
   focus: FocusState;
   setInvoice: (updater: (inv: Invoice) => Invoice) => void;
   replaceInvoice: (inv: Invoice) => void;
   resetBlank: () => void;
   loadSample: () => void;
+  setView: (v: View) => void;
   setMobileTab: (tab: 'edit' | 'preview') => void;
   focusSection: (key: SectionKey, opts?: { itemId?: string }) => void;
   // items
@@ -163,6 +168,13 @@ interface Store {
   loadFromLibrary: (id: string) => void;
   duplicateInLibrary: (id: string) => void;
   deleteFromLibrary: (id: string) => void;
+  // clients (address book)
+  addClient: (c: Client) => SavedClient;
+  updateClient: (id: string, patch: Partial<Client>) => void;
+  deleteClient: (id: string) => void;
+  useClient: (id: string) => void;
+  saveCurrentClient: () => SavedClient | null;
+  startNewInvoiceFor: (clientId: string) => void;
 }
 
 export const useStore = create<Store>()(
@@ -170,13 +182,16 @@ export const useStore = create<Store>()(
     (set, get) => ({
       invoice: sampleInvoice(),
       library: [],
+      clients: [],
+      view: 'dashboard',
       mobileTab: 'edit',
       focus: { key: null, token: 0 },
 
       setInvoice: (updater) => set({ invoice: updater(get().invoice) }),
       replaceInvoice: (invoice) => set({ invoice }),
-      resetBlank: () => set({ invoice: emptyInvoice() }),
+      resetBlank: () => set({ invoice: emptyInvoice(), view: 'editor' }),
       loadSample: () => set({ invoice: sampleInvoice() }),
+      setView: (view) => set({ view }),
       setMobileTab: (mobileTab) => set({ mobileTab }),
       focusSection: (key, opts) =>
         set(() => ({
@@ -269,17 +284,93 @@ export const useStore = create<Store>()(
       loadFromLibrary: (id) =>
         set((s) => {
           const found = s.library.find((i) => i.id === id);
-          return found ? { invoice: { ...found } } : s;
+          // Opening a library entry should flip to the editor as well so
+          // users actually see it.
+          return found ? { invoice: { ...found }, view: 'editor' } : s;
         }),
       duplicateInLibrary: (id) =>
         set((s) => {
           const found = s.library.find((i) => i.id === id);
           if (!found) return s;
-          const copy = { ...found, id: newId(), savedAt: Date.now() };
+          const number = nextNumber(
+            s.library.find((i) => i.meta.number)?.meta.number ?? found.meta.number
+          );
+          const copy: Invoice = {
+            ...found,
+            id: newId(),
+            savedAt: Date.now(),
+            meta: { ...found.meta, number },
+            totals: { ...found.totals, paid: '' },
+          };
           return { library: [copy, ...s.library] };
         }),
       deleteFromLibrary: (id) =>
         set((s) => ({ library: s.library.filter((i) => i.id !== id) })),
+
+      // Address-book actions
+      addClient: (c) => {
+        const saved: SavedClient = { ...c, id: newId(), createdAt: Date.now() };
+        set((s) => ({ clients: [saved, ...s.clients] }));
+        return saved;
+      },
+      updateClient: (id, patch) =>
+        set((s) => ({
+          clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+        })),
+      deleteClient: (id) =>
+        set((s) => ({ clients: s.clients.filter((c) => c.id !== id) })),
+      useClient: (id) =>
+        set((s) => {
+          const c = s.clients.find((x) => x.id === id);
+          if (!c) return s;
+          const { id: _id, createdAt: _createdAt, ...rest } = c;
+          void _id;
+          void _createdAt;
+          return {
+            invoice: { ...s.invoice, client: { ...rest } },
+          };
+        }),
+      saveCurrentClient: () => {
+        const s = get();
+        const current = s.invoice.client;
+        if (!current.name || !current.name.trim()) return null;
+        // If an identical client is already saved (same name + email),
+        // don't duplicate — update it instead.
+        const existing = s.clients.find(
+          (c) =>
+            c.name.trim().toLowerCase() === current.name.trim().toLowerCase() &&
+            (c.email ?? '').trim().toLowerCase() ===
+              (current.email ?? '').trim().toLowerCase()
+        );
+        if (existing) {
+          set((state) => ({
+            clients: state.clients.map((c) =>
+              c.id === existing.id ? { ...c, ...current } : c
+            ),
+          }));
+          return { ...existing, ...current };
+        }
+        const saved: SavedClient = {
+          ...current,
+          id: newId(),
+          createdAt: Date.now(),
+        };
+        set((state) => ({ clients: [saved, ...state.clients] }));
+        return saved;
+      },
+      startNewInvoiceFor: (clientId) =>
+        set((s) => {
+          const c = s.clients.find((x) => x.id === clientId);
+          const blank = emptyInvoice();
+          if (!c) return { invoice: blank, view: 'editor' };
+          const { id: _id, createdAt: _createdAt, ...rest } = c;
+          void _id;
+          void _createdAt;
+          return {
+            invoice: { ...blank, client: { ...rest } },
+            view: 'editor',
+          };
+        }),
     }),
     {
       name: 'invoicer:v1',
@@ -287,7 +378,11 @@ export const useStore = create<Store>()(
       version: 2,
       // Only persist data — transient UI state (focus, mobile tab) resets
       // on reload so stale tokens don't trigger unwanted scrolls.
-      partialize: (s) => ({ invoice: s.invoice, library: s.library }),
+      partialize: (s) => ({
+        invoice: s.invoice,
+        library: s.library,
+        clients: s.clients,
+      }),
       // Normalize older invoice shapes on load. Older browsers may have
       // state without `tax`, `columnVisibility`, etc. The migrator fills in
       // defaults and removes the deprecated `style.showTaxColumn` flag.

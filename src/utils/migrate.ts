@@ -75,18 +75,24 @@ export function migrateInvoice(raw: unknown): Invoice {
 }
 
 /**
- * Migrate a persisted store blob (invoice + library). Safe to call on any
- * unknown shape — returns `null` if the input isn't plausibly our state.
+ * Migrate a persisted store blob (invoice + library + clients). Safe to
+ * call on any unknown shape — returns `null` if the input isn't plausibly
+ * our state.
  */
-export function migratePersisted(
-  raw: unknown
-): { invoice: Invoice; library: Invoice[] } | null {
+export function migratePersisted(raw: unknown): {
+  invoice: Invoice;
+  library: Invoice[];
+  clients: unknown[];
+} | null {
   if (!raw || typeof raw !== 'object') return null;
-  const src = raw as { invoice?: unknown; library?: unknown };
+  const src = raw as { invoice?: unknown; library?: unknown; clients?: unknown };
   if (!src.invoice) return null;
   const library = Array.isArray(src.library) ? src.library.map(migrateInvoice) : [];
+  // Clients are new in v2. Default to empty for older persisted states.
+  const clients = Array.isArray(src.clients) ? src.clients : [];
   return {
     invoice: migrateInvoice(src.invoice),
     library,
+    clients,
   };
 }
