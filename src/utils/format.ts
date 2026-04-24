@@ -1,4 +1,5 @@
 import type { Invoice, LineItem } from '../types';
+import { resolveTax } from './tax';
 
 const num = (v: number | '' | undefined): number =>
   typeof v === 'number' && !isNaN(v) ? v : 0;
@@ -21,6 +22,7 @@ export function lineBase(item: LineItem, calcMode: Invoice['calcMode']): number 
   return num(item.quantity) * num(item.rate);
 }
 
+/** Per-line total, including per-line tax/discount when those apply. */
 export function lineTotal(item: LineItem, calcMode: Invoice['calcMode']): number {
   if (hasOverride(item)) return num(item.totalOverride);
   const base = lineBase(item, calcMode);
@@ -33,14 +35,6 @@ export function subtotal(inv: Invoice): number {
   return inv.items.reduce((s, i) => s + lineBase(i, inv.calcMode), 0);
 }
 
-export function taxTotal(inv: Invoice): number {
-  return inv.items.reduce((s, i) => {
-    if (hasOverride(i)) return s;
-    const base = lineBase(i, inv.calcMode) * (1 - num(i.discount) / 100);
-    return s + base * (num(i.taxRate) / 100);
-  }, 0);
-}
-
 export function discountTotal(inv: Invoice): number {
   return inv.items.reduce((s, i) => {
     if (hasOverride(i)) return s;
@@ -48,8 +42,49 @@ export function discountTotal(inv: Invoice): number {
   }, 0);
 }
 
+/**
+ * Total tax across the invoice. Supports three cases:
+ *   1. Tax disabled — returns 0.
+ *   2. Per-line mode — sum of each line's (base × (1 − discount%) × taxRate%).
+ *      Skips overridden lines since their total is the user's final figure.
+ *   3. Subtotal mode — a single tax rate applied once. When `inclusive` is
+ *      true, the subtotal is treated as tax-inclusive and the tax portion
+ *      is extracted: subtotal × r / (100 + r).
+ */
+export function taxTotal(inv: Invoice): number {
+  const t = resolveTax(inv);
+  if (!t.enabled) return 0;
+  if (t.mode === 'per_line') {
+    return inv.items.reduce((s, i) => {
+      if (hasOverride(i)) return s;
+      const base = lineBase(i, inv.calcMode) * (1 - num(i.discount) / 100);
+      return s + base * (num(i.taxRate) / 100);
+    }, 0);
+  }
+  const rate = num(t.rate);
+  const base = subtotal(inv) - discountTotal(inv);
+  if (t.inclusive) {
+    return rate === 0 ? 0 : (base * rate) / (100 + rate);
+  }
+  return base * (rate / 100);
+}
+
 export function grandTotal(inv: Invoice): number {
-  return inv.items.reduce((s, i) => s + lineTotal(i, inv.calcMode), 0);
+  const t = resolveTax(inv);
+  if (!t.enabled) {
+    // No tax configured — fall back to the per-line totals (which may
+    // contain legacy per-item taxRate values from pre-tax-section invoices).
+    return inv.items.reduce((s, i) => s + lineTotal(i, inv.calcMode), 0);
+  }
+  if (t.mode === 'per_line') {
+    return inv.items.reduce((s, i) => s + lineTotal(i, inv.calcMode), 0);
+  }
+  // Subtotal mode — sum of (base − discount) then tax added on top, unless
+  // the subtotal is already inclusive in which case the total equals the
+  // discounted subtotal.
+  const base = subtotal(inv) - discountTotal(inv);
+  if (t.inclusive) return base;
+  return base + taxTotal(inv);
 }
 
 export function balanceDue(inv: Invoice): number {

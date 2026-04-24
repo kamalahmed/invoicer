@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type { Invoice } from '../types';
-import { balanceDue, grandTotal, money, subtotal, taxTotal } from '../utils/format';
+import { balanceDue, discountTotal, grandTotal, money, subtotal, taxTotal } from '../utils/format';
 import { resolveColumnLabels } from '../utils/labels';
+import { resolveTax } from '../utils/tax';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
 import { EditZone } from '../components/ui/EditZone';
 
@@ -37,6 +38,9 @@ export default function TemplateBase({
   const sym = invoice.currencySymbol;
   const showDays = calcMode === 'days';
   const labels = resolveColumnLabels(invoice);
+  const tax = resolveTax(invoice);
+  const showTaxCol = tax.enabled && tax.mode === 'per_line';
+  const showDiscountCol = !!style.showDiscountColumn;
 
   // Preset cosmetics per variant
   const presets: Record<NonNullable<TemplateBaseProps['variant']>, { tableHead: CSSProperties; titleClass: string; totalBg: CSSProperties }> = {
@@ -298,8 +302,11 @@ export default function TemplateBase({
                   {showDays ? labels.daysWorked : labels.quantity}
                 </th>
                 <th className="px-3 py-2 text-right font-semibold">{labels.rate}</th>
-                {style.showTaxColumn && (
-                  <th className="px-3 py-2 text-right font-semibold">{labels.tax}</th>
+                {showTaxCol && (
+                  <th className="px-3 py-2 text-right font-semibold">{tax.label} %</th>
+                )}
+                {showDiscountCol && (
+                  <th className="px-3 py-2 text-right font-semibold">Discount %</th>
                 )}
                 <th className="px-3 py-2 text-right font-semibold">{labels.total}</th>
               </tr>
@@ -322,9 +329,14 @@ export default function TemplateBase({
                           maximumFractionDigits: 2,
                         })}
                   </td>
-                  {style.showTaxColumn && (
+                  {showTaxCol && (
                     <td className="px-3 py-2 text-right align-top">
                       {it.taxRate === '' || it.taxRate == null ? '' : `${it.taxRate}%`}
+                    </td>
+                  )}
+                  {showDiscountCol && (
+                    <td className="px-3 py-2 text-right align-top">
+                      {it.discount === '' || it.discount == null ? '' : `${it.discount}%`}
                     </td>
                   )}
                   <td className="px-3 py-2 text-right align-top font-medium">{lineTotalStr(it, invoice)}</td>
@@ -340,13 +352,35 @@ export default function TemplateBase({
             <div className="space-y-1 px-4 py-3 text-[13px]" style={p.totalBg}>
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{money(subtotal(invoice), sym)}</span>
+                <span>{money(subtotal(invoice) - discountTotal(invoice), sym)}</span>
               </div>
-              {taxTotal(invoice) > 0 && (
-                <div className="flex justify-between">
-                  <span>Tax</span>
-                  <span>{money(taxTotal(invoice), sym)}</span>
-                </div>
+              {tax.enabled && tax.mode === 'subtotal' && tax.split?.enabled ? (
+                <>
+                  <div className="flex justify-between">
+                    <span>
+                      {tax.split.primaryLabel} ({(Number(tax.rate) / 2).toFixed(2)}%)
+                    </span>
+                    <span>{money(taxTotal(invoice) / 2, sym)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>
+                      {tax.split.secondaryLabel} ({(Number(tax.rate) / 2).toFixed(2)}%)
+                    </span>
+                    <span>{money(taxTotal(invoice) / 2, sym)}</span>
+                  </div>
+                </>
+              ) : (
+                tax.enabled &&
+                taxTotal(invoice) > 0 && (
+                  <div className="flex justify-between">
+                    <span>
+                      {tax.label}
+                      {tax.mode === 'subtotal' && tax.rate ? ` (${Number(tax.rate)}%)` : ''}
+                      {tax.inclusive ? ' · incl.' : ''}
+                    </span>
+                    <span>{money(taxTotal(invoice), sym)}</span>
+                  </div>
+                )
               )}
               {hasValue(totals.adjustment) && (
                 <div className="flex justify-between">
