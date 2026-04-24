@@ -3,6 +3,7 @@ import type { Invoice } from '../types';
 import { balanceDue, discountTotal, grandTotal, money, subtotal, taxTotal } from '../utils/format';
 import { resolveColumnLabels } from '../utils/labels';
 import { resolveTax } from '../utils/tax';
+import { resolveColumns, COLUMN_WIDTHS } from '../utils/columns';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
 import { EditZone } from '../components/ui/EditZone';
 
@@ -39,8 +40,25 @@ export default function TemplateBase({
   const showDays = calcMode === 'days';
   const labels = resolveColumnLabels(invoice);
   const tax = resolveTax(invoice);
-  const showTaxCol = tax.enabled && tax.mode === 'per_line';
-  const showDiscountCol = !!style.showDiscountColumn;
+  const cols = resolveColumns(invoice);
+
+  const colDefs: Array<{ key: string; width?: number | 'auto' }> = [];
+  if (cols.serial)
+    colDefs.push({
+      key: 'serial',
+      width: cols.wide === 'serial' ? 'auto' : COLUMN_WIDTHS.serial,
+    });
+  colDefs.push({
+    key: 'description',
+    width: cols.wide === 'description' ? 'auto' : undefined,
+  });
+  if (cols.calendarDays)
+    colDefs.push({ key: 'calendarDays', width: COLUMN_WIDTHS.calendarDays });
+  if (cols.qty) colDefs.push({ key: 'qty', width: COLUMN_WIDTHS.qty });
+  if (cols.rate) colDefs.push({ key: 'rate', width: COLUMN_WIDTHS.rate });
+  if (cols.tax) colDefs.push({ key: 'tax', width: COLUMN_WIDTHS.tax });
+  if (cols.discount) colDefs.push({ key: 'discount', width: COLUMN_WIDTHS.discount });
+  colDefs.push({ key: 'total', width: COLUMN_WIDTHS.total });
 
   // Preset cosmetics per variant
   const presets: Record<NonNullable<TemplateBaseProps['variant']>, { tableHead: CSSProperties; titleClass: string; totalBg: CSSProperties }> = {
@@ -291,21 +309,36 @@ export default function TemplateBase({
 
         {/* Items */}
         <EditZone target="items" className="mt-8 block">
-          <table className="w-full text-[13px]">
+          <table className="w-full text-[13px]" style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              {colDefs.map((c) => (
+                <col
+                  key={c.key}
+                  style={c.width === 'auto' || c.width === undefined ? undefined : { width: `${c.width}px` }}
+                />
+              ))}
+            </colgroup>
             <thead>
               <tr style={p.tableHead}>
+                {cols.serial && (
+                  <th className="px-3 py-2 text-left font-semibold">{labels.serial}</th>
+                )}
                 <th className="px-3 py-2 text-left font-semibold">{labels.description}</th>
-                {showDays && (
+                {cols.calendarDays && (
                   <th className="px-3 py-2 text-center font-semibold">{labels.calendarDays}</th>
                 )}
-                <th className="px-3 py-2 text-center font-semibold">
-                  {showDays ? labels.daysWorked : labels.quantity}
-                </th>
-                <th className="px-3 py-2 text-right font-semibold">{labels.rate}</th>
-                {showTaxCol && (
+                {cols.qty && (
+                  <th className="px-3 py-2 text-center font-semibold">
+                    {showDays ? labels.daysWorked : labels.quantity}
+                  </th>
+                )}
+                {cols.rate && (
+                  <th className="px-3 py-2 text-right font-semibold">{labels.rate}</th>
+                )}
+                {cols.tax && (
                   <th className="px-3 py-2 text-right font-semibold">{tax.label} %</th>
                 )}
-                {showDiscountCol && (
+                {cols.discount && (
                   <th className="px-3 py-2 text-right font-semibold">Discount %</th>
                 )}
                 <th className="px-3 py-2 text-right font-semibold">{labels.total}</th>
@@ -314,27 +347,38 @@ export default function TemplateBase({
             <tbody>
               {items.map((it, idx) => (
                 <tr key={it.id} className={idx % 2 === 1 && variant !== 'minimal' && variant !== 'elegant' ? 'bg-slate-50' : ''}>
-                  <td className="px-3 py-2 align-top">{it.description || <span className="text-ink-muted">—</span>}</td>
-                  {showDays && (
+                  {cols.serial && (
+                    <td className="px-3 py-2 align-top text-ink-soft">
+                      {it.ref && it.ref.trim() !== '' ? it.ref : idx + 1}
+                    </td>
+                  )}
+                  <td className="px-3 py-2 align-top break-words">
+                    {it.description || <span className="text-ink-muted">—</span>}
+                  </td>
+                  {cols.calendarDays && (
                     <td className="px-3 py-2 text-center align-top">
                       {it.calendarDays === '' || it.calendarDays == null ? '' : it.calendarDays}
                     </td>
                   )}
-                  <td className="px-3 py-2 text-center align-top">{lineQty(it, calcMode)}</td>
-                  <td className="px-3 py-2 text-right align-top">
-                    {it.rate === '' || it.rate == null
-                      ? ''
-                      : Number(it.rate).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                  </td>
-                  {showTaxCol && (
+                  {cols.qty && (
+                    <td className="px-3 py-2 text-center align-top">{lineQty(it, calcMode)}</td>
+                  )}
+                  {cols.rate && (
+                    <td className="px-3 py-2 text-right align-top">
+                      {it.rate === '' || it.rate == null
+                        ? ''
+                        : Number(it.rate).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                    </td>
+                  )}
+                  {cols.tax && (
                     <td className="px-3 py-2 text-right align-top">
                       {it.taxRate === '' || it.taxRate == null ? '' : `${it.taxRate}%`}
                     </td>
                   )}
-                  {showDiscountCol && (
+                  {cols.discount && (
                     <td className="px-3 py-2 text-right align-top">
                       {it.discount === '' || it.discount == null ? '' : `${it.discount}%`}
                     </td>
