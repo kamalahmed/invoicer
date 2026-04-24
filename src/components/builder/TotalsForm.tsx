@@ -11,7 +11,7 @@ export function TotalsForm() {
     setInvoice((i) => ({ ...i, totals: { ...i.totals, ...p } }));
   const sym = inv.currencySymbol;
   return (
-    <Section title="Totals, notes & terms" subtitle="summary">
+    <Section title="Totals, notes & terms" subtitle="summary" sectionId="totals">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label="Adjustment label">
           <TextInput

@@ -6,6 +6,7 @@ import {
 } from '../utils/format';
 import { resolveColumnLabels } from '../utils/labels';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
+import { EditZone } from '../components/ui/EditZone';
 
 /**
  * Classic — a clean white-paper layout styled like the attached sample:
@@ -25,99 +26,107 @@ export default function Classic({ invoice }: TemplateProps) {
     >
       {/* Sender block */}
       <div className="flex items-start justify-between gap-8">
-        <div className="grid grid-cols-[140px_1fr] gap-y-1 gap-x-4 text-[13px]">
-          <div className="font-bold">{sender.label || 'Contractor Name'}:</div>
-          <div>{sender.name || ' '}</div>
-          {hasValue(sender.contractType) && (
-            <>
-              <div className="font-bold">Type of Contract:</div>
-              <div>{sender.contractType}</div>
-            </>
-          )}
-          {hasValue(sender.address) && (
-            <>
-              <div className="font-bold">Address :</div>
-              <div>{renderMultiline(sender.address)}</div>
-            </>
-          )}
-          {hasValue(sender.contact) && (
-            <>
-              <div className="font-bold">Contact :</div>
-              <div className="text-sky-600">{sender.contact}</div>
-            </>
-          )}
-          {hasValue(sender.email) && (
-            <>
-              <div className="font-bold">Email :</div>
-              <div className="text-sky-600 underline">{sender.email}</div>
-            </>
-          )}
-          {hasValue(sender.website) && (
-            <>
-              <div className="font-bold">Website :</div>
-              <div className="text-sky-600 underline">{sender.website}</div>
-            </>
-          )}
-        </div>
+        <EditZone target="sender" className="flex-1">
+          <div className="grid grid-cols-[140px_1fr] gap-y-1 gap-x-4 text-[13px]">
+            <div className="font-bold">{sender.label || 'Contractor Name'}:</div>
+            <div>{sender.name || ' '}</div>
+            {hasValue(sender.contractType) && (
+              <>
+                <div className="font-bold">Type of Contract:</div>
+                <div>{sender.contractType}</div>
+              </>
+            )}
+            {hasValue(sender.address) && (
+              <>
+                <div className="font-bold">Address :</div>
+                <div>{renderMultiline(sender.address)}</div>
+              </>
+            )}
+            {hasValue(sender.contact) && (
+              <>
+                <div className="font-bold">Contact :</div>
+                <div className="text-sky-600">{sender.contact}</div>
+              </>
+            )}
+            {hasValue(sender.email) && (
+              <>
+                <div className="font-bold">Email :</div>
+                <div className="text-sky-600 underline">{sender.email}</div>
+              </>
+            )}
+            {hasValue(sender.website) && (
+              <>
+                <div className="font-bold">Website :</div>
+                <div className="text-sky-600 underline">{sender.website}</div>
+              </>
+            )}
+          </div>
+        </EditZone>
         {style.logoDataUrl && (
-          <img src={style.logoDataUrl} alt="Logo" className="max-h-20 max-w-[180px] object-contain" />
+          <EditZone target="style" title="Click to change logo or template">
+            <img src={style.logoDataUrl} alt="Logo" className="max-h-20 max-w-[180px] object-contain" />
+          </EditZone>
         )}
       </div>
 
       {/* Title */}
-      <h1 className="my-10 text-center text-2xl font-semibold tracking-wide">
-        {invoice.title || 'INVOICE'}
-      </h1>
+      <EditZone target="meta" className="block">
+        <h1 className="my-10 text-center text-2xl font-semibold tracking-wide">
+          {invoice.title || 'INVOICE'}
+        </h1>
+      </EditZone>
 
       {/* Client + meta */}
       <div className="flex items-start justify-between gap-8 border-b border-slate-300 pb-3">
-        <div>
+        <EditZone target="client" className="flex-1">
           <div className="font-bold mb-2">INVOICE TO:</div>
           <div className="font-medium">{client.name || ' '}</div>
           <div className="text-ink-soft">{renderMultiline(client.address)}</div>
           {hasValue(client.contact) && <div className="text-ink-soft">{client.contact}</div>}
           {hasValue(client.email) && <div className="text-ink-soft">{client.email}</div>}
-        </div>
-        <div className="text-[13px] min-w-[220px]">
-          {hasValue(meta.number) && (
+        </EditZone>
+        <EditZone target="meta" className="min-w-[220px]">
+          <div className="text-[13px]">
+            {hasValue(meta.number) && (
+              <div className="flex justify-between gap-8">
+                <span className="text-ink-soft">Invoice #:</span>
+                <span>{meta.number}</span>
+              </div>
+            )}
             <div className="flex justify-between gap-8">
-              <span className="text-ink-soft">Invoice #:</span>
-              <span>{meta.number}</span>
+              <span className="text-ink-soft">Date:</span>
+              <span>{prettyDate(meta.date)}</span>
             </div>
-          )}
-          <div className="flex justify-between gap-8">
-            <span className="text-ink-soft">Date:</span>
-            <span>{prettyDate(meta.date)}</span>
+            {hasValue(meta.dueDate) && (
+              <div className="flex justify-between gap-8">
+                <span className="text-ink-soft">Due Date:</span>
+                <span>{prettyDate(meta.dueDate)}</span>
+              </div>
+            )}
+            {hasValue(meta.period) && (
+              <div className="flex justify-between gap-8">
+                <span className="text-ink-soft">Period:</span>
+                <span>{meta.period}</span>
+              </div>
+            )}
+            {hasValue(meta.department) && (
+              <div className="flex justify-between gap-8">
+                <span className="text-ink-soft">Department:</span>
+                <span>{meta.department}</span>
+              </div>
+            )}
+            {hasValue(meta.poNumber) && (
+              <div className="flex justify-between gap-8">
+                <span className="text-ink-soft">PO #:</span>
+                <span>{meta.poNumber}</span>
+              </div>
+            )}
           </div>
-          {hasValue(meta.dueDate) && (
-            <div className="flex justify-between gap-8">
-              <span className="text-ink-soft">Due Date:</span>
-              <span>{prettyDate(meta.dueDate)}</span>
-            </div>
-          )}
-          {hasValue(meta.period) && (
-            <div className="flex justify-between gap-8">
-              <span className="text-ink-soft">Period:</span>
-              <span>{meta.period}</span>
-            </div>
-          )}
-          {hasValue(meta.department) && (
-            <div className="flex justify-between gap-8">
-              <span className="text-ink-soft">Department:</span>
-              <span>{meta.department}</span>
-            </div>
-          )}
-          {hasValue(meta.poNumber) && (
-            <div className="flex justify-between gap-8">
-              <span className="text-ink-soft">PO #:</span>
-              <span>{meta.poNumber}</span>
-            </div>
-          )}
-        </div>
+        </EditZone>
       </div>
 
       {/* Items table */}
-      <div className="mt-6 overflow-hidden rounded-sm">
+      <EditZone target="items" className="mt-6 block overflow-hidden rounded-sm">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="bg-sky-50 text-left">
@@ -171,10 +180,10 @@ export default function Classic({ invoice }: TemplateProps) {
             ))}
           </tbody>
         </table>
-      </div>
+      </EditZone>
 
       {/* Totals */}
-      <div className="mt-10 flex items-start justify-end border-t border-slate-300 pt-4">
+      <EditZone target="totals" className="mt-10 flex items-start justify-end border-t border-slate-300 pt-4">
         <div className="min-w-[280px] text-[13px]">
           <div className="flex justify-between py-1">
             <span>TOTAL</span>
@@ -195,71 +204,78 @@ export default function Classic({ invoice }: TemplateProps) {
             <span>{money(balanceDue(invoice), sym)}</span>
           </div>
         </div>
-      </div>
+      </EditZone>
 
       {/* Bank + Signatures */}
       <div className="mt-12 grid grid-cols-[1fr_1fr] gap-10 text-[13px]">
         <div>
           {style.showBank && (
-            <div className="space-y-1">
-              {hasValue(bank.accountNumber) && (
-                <div className="grid grid-cols-[120px_1fr] gap-2">
-                  <span className="font-semibold">Bank Details</span>
-                  <span>: {bank.accountNumber}</span>
-                </div>
-              )}
-              {hasValue(bank.bankName) && (
-                <div className="grid grid-cols-[120px_1fr] gap-2">
-                  <span className="font-semibold">Bank Name</span>
-                  <span>: {bank.bankName}</span>
-                </div>
-              )}
-              {hasValue(bank.accountTitle) && (
-                <div className="grid grid-cols-[120px_1fr] gap-2">
-                  <span className="font-semibold">Title</span>
-                  <span>: {bank.accountTitle}</span>
-                </div>
-              )}
-              {hasValue(bank.iban) && (
-                <div className="grid grid-cols-[120px_1fr] gap-2">
-                  <span className="font-semibold">IBAN</span>
-                  <span>: {bank.iban}</span>
-                </div>
-              )}
-              {hasValue(bank.swift) && (
-                <div className="grid grid-cols-[120px_1fr] gap-2">
-                  <span className="font-semibold">Swift Code</span>
-                  <span>: {bank.swift}</span>
-                </div>
-              )}
-            </div>
+            <EditZone target="bank">
+              <div className="space-y-1">
+                {hasValue(bank.accountNumber) && (
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Bank Details</span>
+                    <span>: {bank.accountNumber}</span>
+                  </div>
+                )}
+                {hasValue(bank.bankName) && (
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Bank Name</span>
+                    <span>: {bank.bankName}</span>
+                  </div>
+                )}
+                {hasValue(bank.accountTitle) && (
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Title</span>
+                    <span>: {bank.accountTitle}</span>
+                  </div>
+                )}
+                {hasValue(bank.iban) && (
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">IBAN</span>
+                    <span>: {bank.iban}</span>
+                  </div>
+                )}
+                {hasValue(bank.swift) && (
+                  <div className="grid grid-cols-[120px_1fr] gap-2">
+                    <span className="font-semibold">Swift Code</span>
+                    <span>: {bank.swift}</span>
+                  </div>
+                )}
+              </div>
+            </EditZone>
           )}
         </div>
         <div className="space-y-10">
           {style.showSignatures &&
             signatories.map((sig) => (
-              <div key={sig.id} className="text-center">
-                <div className="flex h-14 items-end justify-center">
-                  {sig.signatureDataUrl && (
-                    <img
-                      src={sig.signatureDataUrl}
-                      alt={sig.label || sig.name || 'Signature'}
-                      className="max-h-14 max-w-[180px] object-contain"
-                    />
-                  )}
+              <EditZone key={sig.id} target="signatures" className="block">
+                <div className="text-center">
+                  <div className="flex h-14 items-end justify-center">
+                    {sig.signatureDataUrl && (
+                      <img
+                        src={sig.signatureDataUrl}
+                        alt={sig.label || sig.name || 'Signature'}
+                        className="max-h-14 max-w-[180px] object-contain"
+                      />
+                    )}
+                  </div>
+                  <div className="border-t border-slate-400 pt-1">
+                    {sig.label && <div className="font-semibold">{sig.label}:</div>}
+                    {sig.name && <div className="font-semibold">{sig.name}</div>}
+                    {sig.title && <div className="text-ink-soft">{sig.title}</div>}
+                  </div>
                 </div>
-                <div className="border-t border-slate-400 pt-1">
-                  {sig.label && <div className="font-semibold">{sig.label}:</div>}
-                  {sig.name && <div className="font-semibold">{sig.name}</div>}
-                  {sig.title && <div className="text-ink-soft">{sig.title}</div>}
-                </div>
-              </div>
+              </EditZone>
             ))}
         </div>
       </div>
 
       {(hasValue(totals.notes) || hasValue(totals.terms)) && (
-        <div className="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-6 text-[12px] text-ink-soft">
+        <EditZone
+          target="totals"
+          className="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-6 text-[12px] text-ink-soft"
+        >
           {hasValue(totals.notes) && (
             <div>
               <div className="mb-1 font-semibold text-ink">Notes</div>
@@ -272,7 +288,7 @@ export default function Classic({ invoice }: TemplateProps) {
               <div>{renderMultiline(totals.terms)}</div>
             </div>
           )}
-        </div>
+        </EditZone>
       )}
     </div>
   );

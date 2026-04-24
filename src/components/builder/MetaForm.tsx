@@ -10,7 +10,7 @@ export function MetaForm() {
   const patchMeta = (p: Partial<typeof meta>) =>
     setInvoice((i) => ({ ...i, meta: { ...i.meta, ...p } }));
   return (
-    <Section title="Invoice details" subtitle="meta">
+    <Section title="Invoice details" subtitle="meta" sectionId="meta">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <Field label="Document title">
           <TextInput

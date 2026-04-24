@@ -3,6 +3,7 @@ import type { Invoice } from '../types';
 import { balanceDue, grandTotal, money, subtotal, taxTotal } from '../utils/format';
 import { resolveColumnLabels } from '../utils/labels';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
+import { EditZone } from '../components/ui/EditZone';
 
 export interface TemplateBaseProps {
   invoice: Invoice;
@@ -223,12 +224,14 @@ export default function TemplateBase({
       style={{ fontFamily: fontFamilyFor(invoice), ...paperStyle }}
     >
       {creativeSideBar}
-      {header ?? defaultHeader}
+      <EditZone target="sender" title="Click to edit your details / logo">
+        {header ?? defaultHeader}
+      </EditZone>
 
       <div className="px-16 pb-12">
         {/* Parties & meta */}
         <div className="mt-8 grid grid-cols-2 gap-10">
-          <div>
+          <EditZone target="client">
             <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: accent }}>
               Bill To
             </div>
@@ -237,8 +240,8 @@ export default function TemplateBase({
             {hasValue(client.contact) && <div className="text-ink-soft">{client.contact}</div>}
             {hasValue(client.email) && <div className="text-ink-soft">{client.email}</div>}
             {hasValue(client.taxId) && <div className="text-ink-soft">Tax ID: {client.taxId}</div>}
-          </div>
-          <div className="text-[13px]">
+          </EditZone>
+          <EditZone target="meta" className="text-[13px]">
             <div className="grid grid-cols-[120px_1fr] gap-y-1">
               {hasValue(meta.number) && (
                 <>
@@ -279,11 +282,11 @@ export default function TemplateBase({
                 </>
               )}
             </div>
-          </div>
+          </EditZone>
         </div>
 
         {/* Items */}
-        <div className="mt-8">
+        <EditZone target="items" className="mt-8 block">
           <table className="w-full text-[13px]">
             <thead>
               <tr style={p.tableHead}>
@@ -329,10 +332,10 @@ export default function TemplateBase({
               ))}
             </tbody>
           </table>
-        </div>
+        </EditZone>
 
         {/* Totals */}
-        <div className="mt-8 flex justify-end">
+        <EditZone target="totals" className="mt-8 flex justify-end">
           <div className="min-w-[300px]">
             <div className="space-y-1 px-4 py-3 text-[13px]" style={p.totalBg}>
               <div className="flex justify-between">
@@ -363,14 +366,14 @@ export default function TemplateBase({
               </div>
             </div>
           </div>
-        </div>
+        </EditZone>
 
         {/* Bank + signatures */}
         {(style.showBank || style.showSignatures) && (
           <div className="mt-12 grid grid-cols-2 gap-10">
             <div>
               {style.showBank && (
-                <>
+                <EditZone target="bank">
                   <div className="text-xs font-semibold uppercase tracking-widest" style={{ color: accent }}>
                     Payment Details
                   </div>
@@ -382,35 +385,40 @@ export default function TemplateBase({
                     {hasValue(bank.swift) && <div><span className="text-ink-muted">SWIFT: </span>{bank.swift}</div>}
                     {hasValue(bank.notes) && <div className="text-ink-soft">{renderMultiline(bank.notes)}</div>}
                   </div>
-                </>
+                </EditZone>
               )}
             </div>
             <div className="space-y-8">
               {style.showSignatures &&
                 signatories.map((sig) => (
-                  <div key={sig.id}>
-                    <div className="flex h-12 items-end">
-                      {sig.signatureDataUrl && (
-                        <img
-                          src={sig.signatureDataUrl}
-                          alt={sig.label || sig.name || 'Signature'}
-                          className="max-h-12 max-w-[200px] object-contain"
-                        />
-                      )}
+                  <EditZone key={sig.id} target="signatures" className="block">
+                    <div>
+                      <div className="flex h-12 items-end">
+                        {sig.signatureDataUrl && (
+                          <img
+                            src={sig.signatureDataUrl}
+                            alt={sig.label || sig.name || 'Signature'}
+                            className="max-h-12 max-w-[200px] object-contain"
+                          />
+                        )}
+                      </div>
+                      <div className="border-t border-slate-400 pt-1 text-[13px]">
+                        {sig.label && <div className="font-semibold">{sig.label}</div>}
+                        {sig.name && <div>{sig.name}</div>}
+                        {sig.title && <div className="text-ink-muted">{sig.title}</div>}
+                      </div>
                     </div>
-                    <div className="border-t border-slate-400 pt-1 text-[13px]">
-                      {sig.label && <div className="font-semibold">{sig.label}</div>}
-                      {sig.name && <div>{sig.name}</div>}
-                      {sig.title && <div className="text-ink-muted">{sig.title}</div>}
-                    </div>
-                  </div>
+                  </EditZone>
                 ))}
             </div>
           </div>
         )}
 
         {(hasValue(totals.notes) || hasValue(totals.terms)) && (
-          <div className="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-6 text-[12px] text-ink-soft">
+          <EditZone
+            target="totals"
+            className="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-6 text-[12px] text-ink-soft"
+          >
             {hasValue(totals.notes) && (
               <div>
                 <div className="mb-1 font-semibold text-ink">Notes</div>
@@ -423,7 +431,7 @@ export default function TemplateBase({
                 <div>{renderMultiline(totals.terms)}</div>
               </div>
             )}
-          </div>
+          </EditZone>
         )}
       </div>
     </div>

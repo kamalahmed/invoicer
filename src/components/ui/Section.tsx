@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useStore, type SectionKey } from '../../store';
 
 export function Section({
   title,
@@ -6,16 +7,43 @@ export function Section({
   defaultOpen = true,
   subtitle,
   action,
+  sectionId,
 }: {
   title: string;
   subtitle?: string;
   children: ReactNode;
   defaultOpen?: boolean;
   action?: ReactNode;
+  /** Optional focus target — when the preview requests focus on this key,
+   *  the section opens, scrolls to the top of the editor column, and pulses. */
+  sectionId?: SectionKey;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const ref = useRef<HTMLElement>(null);
+  const focus = useStore((s) => s.focus);
+  const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    if (!sectionId) return;
+    if (focus.key !== sectionId || focus.token === 0) return;
+    setOpen(true);
+    // Wait a frame so the expansion is laid out before scrolling, otherwise
+    // the target height is wrong and the section lands under the fold.
+    requestAnimationFrame(() => {
+      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    setPulse(true);
+    const t = window.setTimeout(() => setPulse(false), 1200);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus.token]);
+
   return (
-    <section className="rounded-xl border border-slate-200 bg-white">
+    <section
+      ref={ref}
+      data-section-id={sectionId}
+      className={`scroll-mt-4 rounded-xl border border-slate-200 bg-white ${pulse ? 'focus-pulse' : ''}`}
+    >
       <header className="flex items-center justify-between gap-2 px-4 py-3">
         <button
           type="button"
@@ -28,12 +56,8 @@ export function Section({
             }`}
           />
           <span className="font-semibold text-ink">{title}</span>
-          {subtitle && (
-            <span className="text-xs text-ink-muted">— {subtitle}</span>
-          )}
-          <span className="ml-auto text-ink-muted text-xs">
-            {open ? 'Hide' : 'Show'}
-          </span>
+          {subtitle && <span className="text-xs text-ink-muted">— {subtitle}</span>}
+          <span className="ml-auto text-ink-muted text-xs">{open ? 'Hide' : 'Show'}</span>
         </button>
         {action && <div onClick={(e) => e.stopPropagation()}>{action}</div>}
       </header>
