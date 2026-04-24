@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useStore } from './store';
 import { Toolbar } from './components/Toolbar';
 import InvoicePreview from './components/InvoicePreview';
@@ -14,16 +13,19 @@ import { Library } from './components/builder/Library';
 
 export default function App() {
   const invoice = useStore((s) => s.invoice);
-  const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
+  const mobileTab = useStore((s) => s.mobileTab);
+  const setMobileTab = useStore((s) => s.setMobileTab);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col sm:h-screen">
       <Toolbar mobileTab={mobileTab} onMobileTab={setMobileTab} />
 
-      <main className="print-root mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-4 p-3 sm:flex-row sm:p-4">
-        {/* Builder panel */}
+      <main className="print-root mx-auto flex w-full max-w-[1400px] flex-1 min-h-0 flex-col gap-4 p-3 sm:flex-row sm:p-4">
+        {/* Builder panel — scrolls independently on desktop so clicking a
+            preview zone can focus the right section without the preview
+            jumping around. */}
         <section
-          className={`no-print w-full sm:w-[440px] md:w-[480px] lg:w-[520px] shrink-0 space-y-3 ${
+          className={`scroll-column no-print w-full sm:w-[440px] md:w-[480px] lg:w-[520px] shrink-0 space-y-3 sm:h-full sm:overflow-y-auto sm:pr-2 ${
             mobileTab === 'preview' ? 'hidden' : ''
           }`}
         >
@@ -37,15 +39,16 @@ export default function App() {
           <SignaturesForm />
           <Library />
           <p className="text-center text-[11px] text-ink-muted py-4">
-            Stored privately in your browser. Use Print / PDF to export.
+            Click any part of the invoice on the right to jump straight to its editor.
           </p>
         </section>
 
-        {/* Preview panel */}
+        {/* Preview panel — also scrolls independently so tall invoices
+            stay fully visible. */}
         <section
-          className={`flex-1 ${
+          className={`scroll-column flex-1 ${
             mobileTab === 'edit' ? 'hidden sm:flex' : 'flex'
-          } items-start justify-center`}
+          } items-start justify-center sm:h-full sm:overflow-y-auto`}
         >
           <div className="preview-scroll w-full overflow-x-auto py-2">
             <div className="mx-auto w-fit">

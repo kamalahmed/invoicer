@@ -15,6 +15,7 @@ export function BankForm() {
     <Section
       title="Bank details"
       subtitle={inv.style.showBank ? 'shown' : 'hidden'}
+      sectionId="bank"
       action={
         <label className="flex items-center gap-2 text-xs text-ink-soft">
           <input
