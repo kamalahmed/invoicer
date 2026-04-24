@@ -4,6 +4,7 @@ import {
   grandTotal,
   money,
 } from '../utils/format';
+import { resolveColumnLabels } from '../utils/labels';
 import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './shared';
 
 /**
@@ -15,6 +16,7 @@ export default function Classic({ invoice }: TemplateProps) {
   const { sender, client, meta, items, totals, bank, signatories, style, calcMode } = invoice;
   const showDays = calcMode === 'days';
   const sym = invoice.currencySymbol;
+  const labels = resolveColumnLabels(invoice);
 
   return (
     <div
@@ -119,20 +121,20 @@ export default function Classic({ invoice }: TemplateProps) {
         <table className="w-full text-[13px]">
           <thead>
             <tr className="bg-sky-50 text-left">
-              <th className="px-3 py-2 font-semibold">ACTIVITY / DESCRIPTION</th>
+              <th className="px-3 py-2 font-semibold uppercase tracking-wide">
+                {labels.description}
+              </th>
               {showDays && (
-                <th className="px-3 py-2 text-center font-semibold">Calendar Days</th>
+                <th className="px-3 py-2 text-center font-semibold">{labels.calendarDays}</th>
               )}
               <th className="px-3 py-2 text-center font-semibold">
-                {showDays ? 'Days Worked' : 'Qty'}
+                {showDays ? labels.daysWorked : labels.quantity}
               </th>
-              <th className="px-3 py-2 text-right font-semibold">
-                {showDays ? 'Rate / Day' : 'Rate'}
-              </th>
+              <th className="px-3 py-2 text-right font-semibold">{labels.rate}</th>
               {style.showTaxColumn && (
-                <th className="px-3 py-2 text-right font-semibold">Tax %</th>
+                <th className="px-3 py-2 text-right font-semibold">{labels.tax}</th>
               )}
-              <th className="px-3 py-2 text-right font-semibold">Total</th>
+              <th className="px-3 py-2 text-right font-semibold">{labels.total}</th>
             </tr>
           </thead>
           <tbody>
