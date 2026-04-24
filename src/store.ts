@@ -32,13 +32,20 @@ export const emptyInvoice = (): Invoice => ({
   totals: { paid: '', adjustment: '', adjustmentLabel: 'Adjustment', notes: '', terms: '' },
   bank: {},
   signatories: [],
+  tax: {
+    enabled: false,
+    label: 'Tax',
+    rate: 0,
+    mode: 'subtotal',
+    inclusive: false,
+  },
   style: {
     templateId: 'classic',
     accent: '#0f172a',
     fontFamily: 'sans',
     showBank: false,
     showSignatures: false,
-    showTaxColumn: false,
+    showDiscountColumn: false,
   },
 });
 
@@ -117,7 +124,7 @@ export const sampleInvoice = (): Invoice => {
       fontFamily: 'sans',
       showBank: true,
       showSignatures: true,
-      showTaxColumn: false,
+      showDiscountColumn: false,
     },
   };
 };
@@ -138,6 +145,7 @@ export type SectionKey =
   | 'client'
   | 'meta'
   | 'items'
+  | 'tax'
   | 'totals'
   | 'bank'
   | 'signatures'
