@@ -38,9 +38,26 @@ export interface LineItem {
   quantity?: number | '';
   taxRate?: number | ''; // percent
   discount?: number | ''; // percent
+  /**
+   * Manual line total override. When set (a number), this value is used as
+   * the line total and the usual qty × rate (plus tax / discount) math is
+   * ignored. Editing Rate clears the override; editing Qty with an override
+   * in place rederives Rate = override / qty.
+   */
+  totalOverride?: number | '';
 }
 
 export type CalcMode = 'days' | 'quantity';
+
+export interface ColumnLabels {
+  description?: string;
+  calendarDays?: string;
+  quantity?: string; // used when calcMode === 'quantity'
+  daysWorked?: string; // used when calcMode === 'days'
+  rate?: string;
+  tax?: string;
+  total?: string;
+}
 
 export interface BankDetails {
   accountNumber?: string;
@@ -98,6 +115,7 @@ export interface Invoice {
   client: Client;
   meta: InvoiceMeta;
   items: LineItem[];
+  columnLabels?: ColumnLabels;
   totals: InvoiceTotals;
   bank: BankDetails;
   signatories: Signatory[];

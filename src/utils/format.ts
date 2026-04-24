@@ -3,7 +3,18 @@ import type { Invoice, LineItem } from '../types';
 const num = (v: number | '' | undefined): number =>
   typeof v === 'number' && !isNaN(v) ? v : 0;
 
+export function hasOverride(item: LineItem): boolean {
+  return typeof item.totalOverride === 'number' && !isNaN(item.totalOverride);
+}
+
+/**
+ * Raw qty × rate before discount / tax. Used for Subtotal and for deriving
+ * tax from the pre-tax base. Skips items with a manual total override — those
+ * contribute their override directly in `lineTotal` and don't participate in
+ * the tax / discount split.
+ */
 export function lineBase(item: LineItem, calcMode: Invoice['calcMode']): number {
+  if (hasOverride(item)) return num(item.totalOverride);
   if (calcMode === 'days') {
     return num(item.daysWorked) * num(item.rate);
   }
@@ -11,6 +22,7 @@ export function lineBase(item: LineItem, calcMode: Invoice['calcMode']): number 
 }
 
 export function lineTotal(item: LineItem, calcMode: Invoice['calcMode']): number {
+  if (hasOverride(item)) return num(item.totalOverride);
   const base = lineBase(item, calcMode);
   const afterDiscount = base * (1 - num(item.discount) / 100);
   const afterTax = afterDiscount * (1 + num(item.taxRate) / 100);
@@ -23,16 +35,17 @@ export function subtotal(inv: Invoice): number {
 
 export function taxTotal(inv: Invoice): number {
   return inv.items.reduce((s, i) => {
+    if (hasOverride(i)) return s;
     const base = lineBase(i, inv.calcMode) * (1 - num(i.discount) / 100);
     return s + base * (num(i.taxRate) / 100);
   }, 0);
 }
 
 export function discountTotal(inv: Invoice): number {
-  return inv.items.reduce(
-    (s, i) => s + lineBase(i, inv.calcMode) * (num(i.discount) / 100),
-    0
-  );
+  return inv.items.reduce((s, i) => {
+    if (hasOverride(i)) return s;
+    return s + lineBase(i, inv.calcMode) * (num(i.discount) / 100);
+  }, 0);
 }
 
 export function grandTotal(inv: Invoice): number {
