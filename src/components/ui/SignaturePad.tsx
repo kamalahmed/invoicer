@@ -16,15 +16,23 @@ export function SignaturePad({ value, onChange, width = 300, height = 110 }: Sig
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
+  // Tracks the value we just emitted so the sync effect can ignore it and
+  // leave the user's live strokes intact (instead of clearing and redrawing
+  // the trimmed image smaller and centred, which used to cause a jump).
+  const emittedRef = useRef<string | undefined>(value);
   const [isEmpty, setIsEmpty] = useState(!value);
 
-  // When `value` changes externally (load / clear), draw it onto the canvas.
+  // Sync the canvas with `value` only for external changes (load / clear /
+  // uploaded image). Self-emitted values are skipped to avoid the post-stroke
+  // jump described above.
   useEffect(() => {
+    if (value === emittedRef.current) return;
     const c = canvasRef.current;
     if (!c) return;
     const ctx = c.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, c.width, c.height);
+    emittedRef.current = value;
     if (!value) {
       setIsEmpty(true);
       return;
@@ -76,6 +84,9 @@ export function SignaturePad({ value, onChange, width = 300, height = 110 }: Sig
     drawingRef.current = false;
     lastRef.current = null;
     const data = trimCanvas(canvasRef.current!);
+    // Mark the emitted value so the useEffect above won't redraw the trimmed
+    // image over our still-visible strokes.
+    emittedRef.current = data;
     onChange(data);
   };
 
@@ -84,14 +95,15 @@ export function SignaturePad({ value, onChange, width = 300, height = 110 }: Sig
     if (!c) return;
     c.getContext('2d')!.clearRect(0, 0, c.width, c.height);
     setIsEmpty(true);
+    emittedRef.current = undefined;
     onChange(undefined);
   };
 
   const uploadImage = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const url = String(reader.result);
-      onChange(url);
+      // Leave emittedRef as-is so the effect picks this up and paints it.
+      onChange(String(reader.result));
     };
     reader.readAsDataURL(file);
   };
