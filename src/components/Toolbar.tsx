@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { useStore } from '../store';
+import type { Invoice } from '../types';
 
 export function Toolbar({
   mobileTab,
@@ -7,10 +9,44 @@ export function Toolbar({
   mobileTab: 'edit' | 'preview';
   onMobileTab: (t: 'edit' | 'preview') => void;
 }) {
-  const { resetBlank, loadSample, saveCurrent } = useStore();
+  const { resetBlank, loadSample, saveCurrent, replaceInvoice } = useStore();
+  const invoice = useStore((s) => s.invoice);
+  const importRef = useRef<HTMLInputElement>(null);
 
   const confirmReset = () => {
     if (confirm('Start a blank invoice? Current edits will be cleared.')) resetBlank();
+  };
+
+  const exportJSON = () => {
+    const safeName = (invoice.meta.number || invoice.client.name || 'invoice')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    const blob = new Blob([JSON.stringify(invoice, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeName || 'invoice'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importJSON = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result)) as Invoice;
+        if (!parsed || typeof parsed !== 'object' || !parsed.style || !parsed.items) {
+          throw new Error('Invalid invoice JSON');
+        }
+        replaceInvoice(parsed);
+      } catch (err) {
+        alert('Could not import file: ' + (err instanceof Error ? err.message : String(err)));
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -36,11 +72,36 @@ export function Toolbar({
         </div>
 
         <div className="ml-auto flex items-center gap-1">
-          <button className="btn-ghost hidden sm:inline-flex" onClick={loadSample} title="Load sample">
+          <button className="btn-ghost hidden md:inline-flex" onClick={loadSample} title="Load sample">
             Sample
           </button>
-          <button className="btn-ghost hidden sm:inline-flex" onClick={confirmReset}>
+          <button className="btn-ghost hidden md:inline-flex" onClick={confirmReset}>
             New
+          </button>
+          <button
+            className="btn-ghost hidden md:inline-flex"
+            onClick={() => importRef.current?.click()}
+            title="Import invoice JSON"
+          >
+            Import
+          </button>
+          <input
+            ref={importRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) importJSON(f);
+              e.currentTarget.value = '';
+            }}
+          />
+          <button
+            className="btn-ghost hidden md:inline-flex"
+            onClick={exportJSON}
+            title="Export invoice JSON"
+          >
+            Export
           </button>
           <button className="btn-ghost" onClick={saveCurrent}>
             Save

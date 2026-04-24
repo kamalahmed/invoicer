@@ -381,7 +381,15 @@ export default function TemplateBase({
               {style.showSignatures &&
                 signatories.map((sig) => (
                   <div key={sig.id}>
-                    <div className="h-12" />
+                    <div className="flex h-12 items-end">
+                      {sig.signatureDataUrl && (
+                        <img
+                          src={sig.signatureDataUrl}
+                          alt={sig.label || sig.name || 'Signature'}
+                          className="max-h-12 max-w-[200px] object-contain"
+                        />
+                      )}
+                    </div>
                     <div className="border-t border-slate-400 pt-1 text-[13px]">
                       {sig.label && <div className="font-semibold">{sig.label}</div>}
                       {sig.name && <div>{sig.name}</div>}

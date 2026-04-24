@@ -237,7 +237,15 @@ export default function Classic({ invoice }: TemplateProps) {
           {style.showSignatures &&
             signatories.map((sig) => (
               <div key={sig.id} className="text-center">
-                <div className="h-14" />
+                <div className="flex h-14 items-end justify-center">
+                  {sig.signatureDataUrl && (
+                    <img
+                      src={sig.signatureDataUrl}
+                      alt={sig.label || sig.name || 'Signature'}
+                      className="max-h-14 max-w-[180px] object-contain"
+                    />
+                  )}
+                </div>
                 <div className="border-t border-slate-400 pt-1">
                   {sig.label && <div className="font-semibold">{sig.label}:</div>}
                   {sig.name && <div className="font-semibold">{sig.name}</div>}
