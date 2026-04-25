@@ -32,7 +32,7 @@ export function TotalsForm() {
         </Field>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-4 dark:bg-slate-800/40">
         <div>
           <div className="text-xs text-ink-muted">Subtotal</div>
           <div className="font-semibold">{money(subtotal(inv), sym)}</div>

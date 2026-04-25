@@ -14,18 +14,18 @@ function Stat({
   accent: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center gap-2">
         <span
           className="inline-block h-2 w-2 rounded-full"
           style={{ background: accent }}
         />
-        <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">
+        <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted dark:text-slate-400">
           {label}
         </span>
       </div>
-      <div className="mt-2 text-3xl font-semibold text-ink">{value}</div>
-      {hint && <div className="mt-1 text-xs text-ink-muted">{hint}</div>}
+      <div className="mt-2 text-3xl font-semibold text-ink dark:text-slate-100">{value}</div>
+      {hint && <div className="mt-1 text-xs text-ink-muted dark:text-slate-400">{hint}</div>}
     </div>
   );
 }

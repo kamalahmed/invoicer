@@ -3,11 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
       content="Build, customise and export professional invoices entirely in your browser. 10 templates, multi-currency, tax presets, custom fields, PDF download. Free, no signup."
     />
+
+    <!-- Apply the saved theme synchronously, before any CSS loads, to avoid
+         a flash of the light theme on users who prefer dark. Mirrored in
+         src/utils/theme.ts for runtime toggles. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('invoicer:theme');
+          var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = t === 'dark' || ((t == null || t === 'system') && sysDark);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {
+          /* localStorage disabled — fall through to light */
+        }
+      })();
+    </script>
+
     <title>Invoicer — Free Invoice Maker</title>
 
     <!-- Icons & PWA -->
