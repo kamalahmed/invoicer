@@ -106,30 +106,41 @@ body {
   background-color: rgba(14, 165, 233, 0.04);
 }
 
-/* Inputs */
-.field-label {
-  @apply block text-xs font-semibold uppercase tracking-wide text-ink-muted mb-1;
-}
-.field-input {
-  @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-ink
-    placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2
-    focus:ring-slate-900/10 transition;
-}
-.field-textarea {
-  @apply field-input min-h-[70px] resize-y;
-}
-.btn {
-  @apply inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition;
-}
-.btn-primary {
-  @apply btn bg-ink text-white hover:bg-slate-800 active:bg-slate-900;
-}
-.btn-ghost {
-  @apply btn bg-white text-ink border border-slate-300 hover:bg-slate-50;
-}
-.btn-danger {
-  @apply btn text-red-600 hover:bg-red-50;
-}
-.chip {
-  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+/* Custom component classes.
+ *
+ * Wrapped in `@layer components` so they go into Tailwind's components
+ * layer (loaded BEFORE utilities). Without the layer, these rules would
+ * land after `@tailwind utilities;` and — having equal specificity to
+ * single-class utilities — would override them on cascade order alone.
+ * That caused buttons with `class="btn-ghost hidden md:inline-flex"` to
+ * stay visible below `md:` because `.btn`'s `inline-flex` was overriding
+ * `.hidden`.
+ */
+@layer components {
+  .field-label {
+    @apply block text-xs font-semibold uppercase tracking-wide text-ink-muted mb-1;
+  }
+  .field-input {
+    @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-ink
+      placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2
+      focus:ring-slate-900/10 transition;
+  }
+  .field-textarea {
+    @apply field-input min-h-[70px] resize-y;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-white hover:bg-slate-800 active:bg-slate-900;
+  }
+  .btn-ghost {
+    @apply btn bg-white text-ink border border-slate-300 hover:bg-slate-50;
+  }
+  .btn-danger {
+    @apply btn text-red-600 hover:bg-red-50;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
 }
