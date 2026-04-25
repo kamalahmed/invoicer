@@ -34,7 +34,7 @@ export function CustomFieldsForm() {
           {fields.map((f) => (
             <div
               key={f.id}
-              className="grid grid-cols-[1fr_1fr_auto] items-end gap-2 rounded-lg border border-slate-200 p-3"
+              className="grid grid-cols-[1fr_1fr_auto] items-end gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-800"
             >
               <Field label="Label">
                 <TextInput

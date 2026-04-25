@@ -76,7 +76,7 @@ export function ItemsEditor() {
       }
     >
       {/* Columns & width — hide columns, choose which column gets the extra width. */}
-      <div className="rounded-lg border border-slate-200 bg-slate-50">
+      <div className="rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/40">
         <button
           type="button"
           onClick={() => setColumnsOpen((o) => !o)}
@@ -86,7 +86,7 @@ export function ItemsEditor() {
           <span className="text-ink-muted">{columnsOpen ? 'Hide' : 'Adjust'}</span>
         </button>
         {columnsOpen && (
-          <div className="space-y-3 border-t border-slate-200 p-3">
+          <div className="space-y-3 border-t border-slate-200 p-3 dark:border-slate-800">
             <div>
               <div className="field-label">Show columns</div>
               <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
@@ -167,7 +167,7 @@ export function ItemsEditor() {
       </div>
 
       {/* Column labels — editable, with the defaults surfaced as placeholders. */}
-      <div className="rounded-lg border border-slate-200 bg-slate-50">
+      <div className="rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/40">
         <button
           type="button"
           onClick={() => setLabelsOpen((o) => !o)}
@@ -177,7 +177,7 @@ export function ItemsEditor() {
           <span className="text-ink-muted">{labelsOpen ? 'Hide' : 'Customize'}</span>
         </button>
         {labelsOpen && (
-          <div className="grid grid-cols-2 gap-2 border-t border-slate-200 p-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 border-t border-slate-200 p-3 sm:grid-cols-3 dark:border-slate-800">
             {cols.serial && (
               <Field label="Serial / ref">
                 <TextInput
@@ -245,7 +245,7 @@ export function ItemsEditor() {
         {inv.items.map((item, idx) => {
           const overridden = hasOverride(item);
           return (
-            <div key={item.id} className="rounded-lg border border-slate-200 p-3">
+            <div key={item.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-ink-muted">Row {idx + 1}</span>
                 <div className="flex items-center gap-1">
