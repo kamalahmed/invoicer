@@ -111,13 +111,20 @@ src/
     __tests__/                  # Vitest suite — 51 tests as of last update
 
 public/
-  manifest.webmanifest          # PWA manifest
+  manifest.webmanifest          # PWA manifest (PNG icons listed first)
   sw.js                         # Vanilla service worker
-  icon.svg / icon-maskable.svg  # PWA icons
+  icon.svg / icon-maskable.svg  # Source SVG icons
+  icon-192.png / icon-512.png   # Generated PWA icons (npm run icons)
+  icon-maskable-192.png / icon-maskable-512.png
+  apple-touch-icon.png          # 180×180 for iOS Safari
   favicon.svg
+
+scripts/
+  generate-pwa-icons.mjs        # sharp-based SVG → PNG generator
 
 .github/workflows/ci.yml        # Build + test on every PR
 docs/screenshots/               # User-supplied screenshots referenced in README
+vercel.json                     # Explicit MIME types for .webmanifest + sw.js
 ```
 
 ---
@@ -303,14 +310,26 @@ so triples the first-paint payload.
 
 ## PWA
 
-- `public/manifest.webmanifest` declares the app, with SVG icons (any +
-  maskable) at `public/icon.svg` / `public/icon-maskable.svg`.
+- `public/manifest.webmanifest` declares the app. Chrome's installability
+  heuristic requires **PNG** icons at 192×192 and 512×512 — SVG-only
+  manifests don't satisfy installability on Android. PNGs (regular and
+  maskable) are generated from the source SVGs by
+  `scripts/generate-pwa-icons.mjs` (run `npm run icons` after editing the
+  SVGs). The script uses `sharp` and is a devDependency-only.
 - `public/sw.js` is a hand-written service worker. App shell precaches on
   install. Navigations are network-first with a cached `index.html` fallback.
   Hashed `/assets/*` are cache-first.
 - Registration happens in `src/main.tsx`, gated by `import.meta.env.PROD` so
   the dev server isn't intercepted.
 - Bump `CACHE_VERSION` in `sw.js` when the offline behaviour needs to change.
+- `vercel.json` sets explicit `Content-Type` headers for `/manifest.webmanifest`
+  and `/sw.js` to avoid hosting MIME-type quirks that break installability.
+- `src/components/InstallButton.tsx` listens for `beforeinstallprompt`
+  (Chromium / Edge / Android) and offers a one-tap install. On iOS Safari
+  (`isIosNeedingManualInstall()` heuristic in `utils/install.ts`) it shows
+  a popover with the manual Share → Add to Home Screen steps — Apple does
+  not provide an automatic prompt. Renders nothing once installed
+  (`display-mode: standalone` or `navigator.standalone`).
 
 ---
 
