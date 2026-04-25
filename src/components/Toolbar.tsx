@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useStore } from '../store';
 import type { Invoice } from '../types';
 import { PdfDownloadButton } from './dashboard/PdfDownloadButton';
+import { InstallButton } from './InstallButton';
 
 export function Toolbar() {
   const { resetBlank, loadSample, saveCurrent, replaceInvoice } = useStore();
@@ -85,6 +86,7 @@ export function Toolbar() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1">
+          <InstallButton />
           {inEditor && (
             <>
               <button className="btn-ghost hidden md:inline-flex" onClick={loadSample} title="Load sample">
