@@ -2,7 +2,14 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { requestPersistentStorage } from './utils/storage';
+import { applyTheme, watchSystemTheme } from './utils/theme';
 import './index.css';
+
+// Re-apply the theme on boot (covers cases where the inline script in
+// index.html didn't run) and subscribe to OS-level scheme changes so
+// 'system' theme tracks the device.
+applyTheme();
+watchSystemTheme();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

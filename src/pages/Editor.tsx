@@ -35,7 +35,7 @@ export function Editor() {
         <TotalsForm />
         <BankForm />
         <SignaturesForm />
-        <p className="text-center text-[11px] text-ink-muted py-4">
+        <p className="text-center text-[11px] text-ink-muted py-4 dark:text-slate-400">
           Click any part of the invoice on the right to jump straight to its editor.
         </p>
       </section>

@@ -38,7 +38,7 @@ export function SignaturesForm() {
           </div>
         )}
         {inv.signatories.map((sig) => (
-          <div key={sig.id} className="rounded-lg border border-slate-200 p-3">
+          <div key={sig.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Field label="Label">
                 <TextInput

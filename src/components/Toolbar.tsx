@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import type { Invoice } from '../types';
 import { PdfDownloadButton } from './dashboard/PdfDownloadButton';
 import { InstallButton } from './InstallButton';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Toolbar() {
   const { resetBlank, loadSample, saveCurrent, replaceInvoice } = useStore();
@@ -53,7 +54,7 @@ export function Toolbar() {
   const inEditor = view === 'editor';
 
   return (
-    <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <header className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80">
       {/* Top row: logo + Dashboard/Editor switcher (desktop) + primary actions */}
       <div className="mx-auto flex max-w-[1400px] items-center gap-2 px-3 py-2 sm:px-4">
         <button
@@ -76,7 +77,7 @@ export function Toolbar() {
 
         {/* Desktop view switcher — sits in the centre. On mobile it lives
             in its own dedicated row below so it doesn't crowd the actions. */}
-        <div className="mx-auto hidden sm:flex items-center gap-1 rounded-full bg-slate-100 p-1">
+        <div className="mx-auto hidden sm:flex items-center gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
           <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
             Dashboard
           </PillBtn>
@@ -86,8 +87,12 @@ export function Toolbar() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1">
-          {/* Install button on tablet/desktop only — on mobile it lives in
-              the secondary row below to stop the top row from overflowing. */}
+          {/* Theme toggle and Install button on tablet/desktop only — on
+              mobile they live in the secondary row to stop the top row
+              from overflowing. */}
+          <div className="hidden sm:inline-flex">
+            <ThemeToggle />
+          </div>
           <div className="hidden sm:inline-flex">
             <InstallButton />
           </div>
@@ -147,7 +152,7 @@ export function Toolbar() {
           - Install button — moved here from the top row to keep that row
             from overflowing on narrow phones. */}
       <div className="flex flex-wrap items-center justify-center gap-2 px-3 pb-2 sm:hidden">
-        <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
+        <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
           <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
             Dashboard
           </PillBtn>
@@ -156,7 +161,7 @@ export function Toolbar() {
           </PillBtn>
         </div>
         {inEditor && (
-          <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
+          <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
             <PillBtn active={mobileTab === 'edit'} onClick={() => setMobileTab('edit')}>
               Form
             </PillBtn>
@@ -165,6 +170,7 @@ export function Toolbar() {
             </PillBtn>
           </div>
         )}
+        <ThemeToggle />
         <InstallButton />
       </div>
     </header>
@@ -184,7 +190,9 @@ function PillBtn({
     <button
       onClick={onClick}
       className={`rounded-full px-3 py-1 text-sm font-medium transition ${
-        active ? 'bg-white text-ink shadow' : 'text-ink-soft hover:text-ink'
+        active
+          ? 'bg-white text-ink shadow dark:bg-slate-700 dark:text-slate-100'
+          : 'text-ink-soft hover:text-ink dark:text-slate-400 dark:hover:text-slate-100'
       }`}
     >
       {children}

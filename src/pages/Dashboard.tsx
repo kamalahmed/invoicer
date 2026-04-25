@@ -18,8 +18,10 @@ export function Dashboard() {
     <div className="mx-auto w-full max-w-[1200px] space-y-6 p-4 sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-sm text-ink-muted">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl dark:text-slate-100">
+            Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-ink-muted dark:text-slate-400">
             Your invoices and clients, all in one place.
           </p>
         </div>
@@ -40,9 +42,11 @@ export function Dashboard() {
       <StatCards />
 
       {!hasStuff && (
-        <section className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
-          <h2 className="text-lg font-semibold">Welcome — let's get you an invoice.</h2>
-          <p className="mt-1 text-sm text-ink-muted">
+        <section className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
+          <h2 className="text-lg font-semibold dark:text-slate-100">
+            Welcome — let's get you an invoice.
+          </h2>
+          <p className="mt-1 text-sm text-ink-muted dark:text-slate-400">
             Pick an industry starter below, or start from scratch.
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">

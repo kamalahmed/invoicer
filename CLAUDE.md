@@ -308,6 +308,30 @@ so triples the first-paint payload.
 
 ---
 
+## Theming (light / dark / system)
+
+- Tailwind's `darkMode: 'class'` is on (see `tailwind.config.js`). Dark mode
+  is applied by adding the `dark` class to `<html>`.
+- `src/utils/theme.ts` owns the runtime API: `getStoredTheme`,
+  `setTheme(theme)`, `applyTheme()`, `watchSystemTheme()`.
+- **Important:** the same logic is mirrored as an inline `<script>` at the
+  top of `index.html` so the class lands on `<html>` *before* any CSS
+  parses. Without this the dark-mode user gets a flash of the light theme
+  on every load. If you change the storage key (`invoicer:theme`) or the
+  system-pref check, update both places.
+- `ThemeToggle` (in `components/ThemeToggle.tsx`) cycles
+  `Light → Dark → System`. Mounted in the toolbar (top row on tablet+,
+  secondary mobile row on phones).
+- The **invoice paper itself stays white** in both themes — it represents
+  a printed document. The "Dark" *template* is for users who actually want
+  a dark exported invoice. PDFs render the same regardless of UI theme.
+- When adding a new card / panel / surface, give it `dark:bg-slate-900`
+  and `dark:border-slate-800` (or a slightly lighter `slate-800` for
+  nested panels). Text on dark goes `dark:text-slate-100`, muted text
+  `dark:text-slate-400`. Inputs, buttons, chips already have dark variants
+  baked into `index.css` — keep using the `field-input` / `btn-ghost` /
+  `chip` classes and you get them for free.
+
 ## PWA
 
 - `public/manifest.webmanifest` declares the app. Chrome's installability
