@@ -146,7 +146,7 @@ export function TaxForm() {
           )}
 
           {tax.mode === 'subtotal' && (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-800 dark:bg-slate-800/40">
               <label className="flex items-start gap-2">
                 <input
                   type="checkbox"

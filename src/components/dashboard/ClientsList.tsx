@@ -53,11 +53,11 @@ export function ClientsList() {
   };
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white">
-      <header className="flex items-center justify-between gap-2 border-b border-slate-200 px-5 py-3">
+    <section className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <header className="flex items-center justify-between gap-2 border-b border-slate-200 px-5 py-3 dark:border-slate-800">
         <div>
-          <h2 className="text-sm font-semibold text-ink">Clients</h2>
-          <p className="text-xs text-ink-muted">
+          <h2 className="text-sm font-semibold text-ink dark:text-slate-100">Clients</h2>
+          <p className="text-xs text-ink-muted dark:text-slate-400">
             Reusable address book — pick one when creating an invoice.
           </p>
         </div>
@@ -69,7 +69,7 @@ export function ClientsList() {
       </header>
 
       {(creating || editing) && (
-        <div className="space-y-3 border-b border-slate-200 bg-slate-50 px-5 py-4">
+        <div className="space-y-3 border-b border-slate-200 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Name / Company">
               <TextInput
@@ -117,12 +117,12 @@ export function ClientsList() {
       )}
 
       {clients.length === 0 && !creating ? (
-        <div className="p-8 text-center text-sm text-ink-muted">
+        <div className="p-8 text-center text-sm text-ink-muted dark:text-slate-400">
           No clients yet. Add one here, or save one from the Bill-to section in
           the editor.
         </div>
       ) : (
-        <ul className="divide-y divide-slate-100">
+        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
           {clients.map((c) => (
             <li
               key={c.id}
@@ -130,7 +130,7 @@ export function ClientsList() {
             >
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{c.name}</div>
-                <div className="text-xs text-ink-muted">
+                <div className="text-xs text-ink-muted dark:text-slate-400">
                   {[c.email, c.contact, c.taxId && `Tax ID: ${c.taxId}`]
                     .filter(Boolean)
                     .join(' · ') || 'No contact details'}

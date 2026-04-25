@@ -20,7 +20,7 @@ export function ClientForm() {
   return (
     <Section title="Bill to" subtitle="client" sectionId="client">
       {clients.length > 0 && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40">
           <div className="field-label">Use a saved client</div>
           <div className="flex items-center gap-2">
             <select
@@ -79,8 +79,8 @@ export function ClientForm() {
         </Field>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3">
-        <p className="text-xs text-ink-muted">
+      <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+        <p className="text-xs text-ink-muted dark:text-slate-400">
           {currentMatchId
             ? 'This client is in your address book.'
             : 'Save this client to reuse on future invoices.'}

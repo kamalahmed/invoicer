@@ -46,7 +46,7 @@ export function StyleForm() {
               className={`group relative overflow-hidden rounded-lg border p-0 text-left transition ${
                 inv.style.templateId === t.id
                   ? 'border-ink ring-2 ring-ink'
-                  : 'border-slate-200 hover:border-slate-400'
+                  : 'border-slate-200 hover:border-slate-400 dark:border-slate-800 dark:hover:border-slate-600'
               }`}
               title={t.description}
             >
