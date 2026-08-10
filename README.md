@@ -21,21 +21,6 @@ and anyone who needs a clean, customisable invoice without an account.
 
 ---
 
-## Screenshots
-
-> Drop screenshots into `docs/screenshots/` to populate this section.
-> Quick way: open the [live demo](https://invoicer-one-zeta.vercel.app/), capture each
-> view, and save with the filenames below.
-
-| | |
-|---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Editor](docs/screenshots/editor.png) |
-| **Dashboard** — stats, saved invoices, address book, industry starters. | **Editor** — live preview alongside a focused builder. |
-| ![Templates](docs/screenshots/templates.png) | ![Mobile](docs/screenshots/mobile.png) |
-| **Ten templates** — Classic, Modern, Minimal, Corporate, Creative, Elegant, Dark, Gradient, Bold, Playful. | **Mobile** — switch between Edit and Preview tabs. |
-
----
-
 ## Features
 
 ### Editor & preview
@@ -169,9 +154,6 @@ src/
 public/                     # Static assets — manifest, service worker, icons
 ```
 
-Detailed architecture, conventions, and AI-session context live in
-[`CLAUDE.md`](./CLAUDE.md).
-
 ---
 
 ## Contributing
@@ -201,6 +183,6 @@ appreciated but not required.
 
 If this saved you time, a coffee is appreciated:
 
-- [☕ Ko-fi](https://ko-fi.com/) *(set up the link once your account is live)*
-- [💖 GitHub Sponsors](https://github.com/sponsors/kamalahmed) *(once enabled)*
+- [☕ Ko-fi](https://ko-fi.com/kamalahmed)
+- [💖 GitHub Sponsors](https://github.com/sponsors/kamalahmed)
 - ⭐ Star the repo on GitHub — it really helps with discovery.

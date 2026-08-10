@@ -11,12 +11,7 @@ interface EditZoneProps {
   title?: string;
 }
 
-/**
- * Wraps a region of the invoice preview so clicking it focuses the matching
- * builder Section: opens it if collapsed, scrolls it to the top of the
- * editor column, and briefly pulses a highlight. On mobile it also flips
- * the current tab to Edit so the section is actually reachable.
- */
+/** Wraps a preview region so clicking it focuses the matching builder section. */
 export function EditZone({
   target,
   children,

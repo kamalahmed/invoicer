@@ -8,12 +8,7 @@ export function hasOverride(item: LineItem): boolean {
   return typeof item.totalOverride === 'number' && !isNaN(item.totalOverride);
 }
 
-/**
- * Raw qty × rate before discount / tax. Used for Subtotal and for deriving
- * tax from the pre-tax base. Skips items with a manual total override — those
- * contribute their override directly in `lineTotal` and don't participate in
- * the tax / discount split.
- */
+/** Raw qty × rate before discount/tax. Overridden items use their override. */
 export function lineBase(item: LineItem, calcMode: Invoice['calcMode']): number {
   if (hasOverride(item)) return num(item.totalOverride);
   if (calcMode === 'days') {
@@ -22,7 +17,7 @@ export function lineBase(item: LineItem, calcMode: Invoice['calcMode']): number 
   return num(item.quantity) * num(item.rate);
 }
 
-/** Per-line total, including per-line tax/discount when those apply. */
+/** Per-line total, including per-line tax/discount when applicable. */
 export function lineTotal(item: LineItem, calcMode: Invoice['calcMode']): number {
   if (hasOverride(item)) return num(item.totalOverride);
   const base = lineBase(item, calcMode);
@@ -43,13 +38,8 @@ export function discountTotal(inv: Invoice): number {
 }
 
 /**
- * Total tax across the invoice. Supports three cases:
- *   1. Tax disabled — returns 0.
- *   2. Per-line mode — sum of each line's (base × (1 − discount%) × taxRate%).
- *      Skips overridden lines since their total is the user's final figure.
- *   3. Subtotal mode — a single tax rate applied once. When `inclusive` is
- *      true, the subtotal is treated as tax-inclusive and the tax portion
- *      is extracted: subtotal × r / (100 + r).
+ * Total tax across the invoice. Handles disabled, per-line, and
+ * subtotal mode (with inclusive tax extraction: subtotal × r / (100 + r)).
  */
 export function taxTotal(inv: Invoice): number {
   const t = resolveTax(inv);

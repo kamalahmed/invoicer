@@ -68,12 +68,6 @@ export const emptyInvoice = (): Invoice => ({
   },
 });
 
-/**
- * A friendly, generic demo invoice shown on first load and when the user
- * clicks "Sample". Uses fictitious companies so the data is obviously
- * placeholder text that needs replacing, but still reads like a real
- * invoice so new users understand what goes where.
- */
 export const sampleInvoice = (): Invoice => {
   const base = emptyInvoice();
   const issued = today();

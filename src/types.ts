@@ -12,7 +12,7 @@ export type TemplateId =
 
 export interface Party {
   name: string;
-  label?: string; // e.g. "Contractor Name"
+  label?: string;
   contractType?: string;
   address?: string;
   contact?: string;
@@ -37,8 +37,7 @@ export interface SavedClient extends Client {
 
 export interface LineItem {
   id: string;
-  /** Short identifier used by the optional Serial/Ref column (SKU, date, #). */
-  ref?: string;
+  ref?: string; // optional Serial/Ref column (SKU, date, #)
   description: string;
   calendarDays?: number | '';
   daysWorked?: number | '';
@@ -46,12 +45,7 @@ export interface LineItem {
   quantity?: number | '';
   taxRate?: number | ''; // percent
   discount?: number | ''; // percent
-  /**
-   * Manual line total override. When set (a number), this value is used as
-   * the line total and the usual qty × rate (plus tax / discount) math is
-   * ignored. Editing Rate clears the override; editing Qty with an override
-   * in place rederives Rate = override / qty.
-   */
+  // When set, bypasses qty × rate math. Editing Rate clears the override.
   totalOverride?: number | '';
 }
 
@@ -68,16 +62,11 @@ export interface ColumnLabels {
   total?: string;
 }
 
-/**
- * Visibility flags for each line-item table column. Some columns
- * (description, total) are always shown. Tax and discount visibility are
- * driven elsewhere (tax mode and `style.showDiscountColumn` respectively).
- */
 export interface ColumnVisibility {
-  serial?: boolean; // default false
-  calendarDays?: boolean; // default true (only applies in days mode)
-  qty?: boolean; // default true
-  rate?: boolean; // default true
+  serial?: boolean;
+  calendarDays?: boolean; // only applies in days mode
+  qty?: boolean;
+  rate?: boolean;
 }
 
 export interface CustomField {
@@ -86,11 +75,7 @@ export interface CustomField {
   value: string;
 }
 
-/**
- * Which column should absorb the extra horizontal space. Other columns get
- * compact fixed widths via colgroup. Default is 'description' — matches the
- * original contractor-sample layout.
- */
+/** Which column absorbs extra horizontal space via colgroup. */
 export type WideColumn = 'description' | 'serial';
 
 export interface BankDetails {
@@ -104,10 +89,10 @@ export interface BankDetails {
 
 export interface Signatory {
   id: string;
-  label: string; // e.g. "ICA Signature"
+  label: string;
   name?: string;
   title?: string;
-  signatureDataUrl?: string; // PNG data url
+  signatureDataUrl?: string;
 }
 
 export interface InvoiceMeta {
@@ -150,19 +135,12 @@ export type TaxMode = 'subtotal' | 'per_line';
 
 export interface InvoiceTax {
   enabled: boolean;
-  /** Display label, e.g. "VAT", "GST", "Sales Tax". */
   label: string;
-  /** Overall rate in percent. For split tax this is the combined rate. */
   rate: number | '';
-  /** Whether tax is applied per line item or once on the subtotal. */
   mode: TaxMode;
   /** True if line prices already include this tax. */
   inclusive: boolean;
-  /**
-   * Optional split into two components (e.g. India CGST + SGST at half the
-   * combined rate each). When enabled, the invoice shows two separate tax
-   * rows; totals are identical.
-   */
+  /** Optional split into two components (e.g. India CGST + SGST at half rate each). */
   split?: {
     enabled: boolean;
     primaryLabel: string;

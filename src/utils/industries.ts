@@ -21,11 +21,7 @@ const cf = (label: string, value = ''): CustomField => ({
   value,
 });
 
-/**
- * Each preset takes a blank/current invoice and layers on defaults that
- * match the industry's usual billing shape. Visual template stays whatever
- * the user had picked — these are data presets, not designs.
- */
+/** Industry presets pre-fill the invoice with sensible defaults. */
 export const INDUSTRY_PRESETS: IndustryPreset[] = [
   {
     id: 'freelancer',

@@ -68,15 +68,14 @@ export function Toolbar() {
           </div>
           <div className="text-left">
             <div className="text-sm font-semibold leading-none">Invoicer</div>
-            {/* Hide subtitle on small screens to free up width. */}
+            {/* Hide subtitle on small screens */}
             <div className="hidden text-[10px] text-ink-muted sm:block">
               Free invoice maker
             </div>
           </div>
         </button>
 
-        {/* Desktop view switcher — sits in the centre. On mobile it lives
-            in its own dedicated row below so it doesn't crowd the actions. */}
+        {/* Desktop view switcher */}
         <div className="mx-auto hidden sm:flex items-center gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
           <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>
             Dashboard
@@ -87,9 +86,7 @@ export function Toolbar() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1">
-          {/* Theme toggle and Install button on tablet/desktop only — on
-              mobile they live in the secondary row to stop the top row
-              from overflowing. */}
+          {/* Theme toggle and Install — desktop only, mobile has them below */}
           <div className="hidden sm:inline-flex">
             <ThemeToggle />
           </div>
@@ -142,15 +139,7 @@ export function Toolbar() {
         </div>
       </div>
 
-      {/* Mobile-only secondary row.
-          - Dashboard / Editor pill — top-level navigation between the two
-            top-level views.
-          - Form / Preview pill (only when in editor) — switches the *panel*
-            on this single screen between the input form and the live
-            preview. Renamed from "Edit" → "Form" so it isn't confused with
-            the "Editor" view label above.
-          - Install button — moved here from the top row to keep that row
-            from overflowing on narrow phones. */}
+      {/* Mobile-only secondary row */}
       <div className="flex flex-wrap items-center justify-center gap-2 px-3 pb-2 sm:hidden">
         <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
           <PillBtn active={view === 'dashboard'} onClick={() => setView('dashboard')}>

@@ -8,12 +8,7 @@ export interface TaxPreset {
   description: string;
 }
 
-/**
- * Common invoice tax presets grouped roughly by region. Users can still pick
- * "Custom" and enter any rate. Rates here match the headline standard rates
- * at the time of writing — reduced rates and exemptions vary by country and
- * are the user's responsibility.
- */
+/** Standard invoice tax presets. Users can also pick Custom for any rate. */
 export const TAX_PRESETS: TaxPreset[] = [
   { id: 'none', label: 'No tax', rate: 0, description: 'Tax disabled' },
   { id: 'vat-uk', country: 'UK', label: 'VAT', rate: 20, description: 'United Kingdom VAT — standard 20%' },

@@ -14,8 +14,6 @@ export function Section({
   children: ReactNode;
   defaultOpen?: boolean;
   action?: ReactNode;
-  /** Optional focus target — when the preview requests focus on this key,
-   *  the section opens, scrolls to the top of the editor column, and pulses. */
   sectionId?: SectionKey;
 }) {
   const [open, setOpen] = useState(defaultOpen);

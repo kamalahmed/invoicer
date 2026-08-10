@@ -4,11 +4,7 @@ import InvoicePreview from '../InvoicePreview';
 import type { Invoice } from '../../types';
 import { downloadInvoicePdf, pdfFilename } from '../../utils/pdf';
 
-/**
- * Renders the invoice into an off-screen React root, captures it with
- * html2canvas, and triggers a PDF download. Works for any invoice (library
- * row, current, duplicated) without depending on what's visible.
- */
+/** Renders the invoice off-screen, captures it with html2canvas, and triggers a PDF download. */
 async function renderAndDownload(invoice: Invoice): Promise<void> {
   const container = document.createElement('div');
   container.style.cssText =
@@ -38,8 +34,6 @@ export function PdfDownloadButton({
   invoice: Invoice;
   variant?: 'primary' | 'ghost';
   label?: string;
-  /** Optional short text shown below the `sm` breakpoint. Useful in the
-   *  toolbar where horizontal space is scarce on phones. */
   shortLabel?: string;
 }) {
   const [busy, setBusy] = useState(false);

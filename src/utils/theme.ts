@@ -1,13 +1,9 @@
 /**
  * Light / dark / system theme management.
  *
- * Storage key: `invoicer:theme` (separate from the zustand-persisted store
- * so it can be applied synchronously before React boots, eliminating the
- * flash-of-light-theme on dark-mode users.)
- *
- * The same logic is duplicated as an inline `<script>` in `index.html` to
- * apply the class before any CSS loads — that script writes the class onto
- * `<html>` and this module then takes over for runtime toggling.
+ * Uses `invoicer:theme` key (separate from the zustand store) so the
+ * theme can be applied in `index.html` before React boots, eliminating
+ * the flash of light theme for dark-mode users.
  */
 
 export type Theme = 'light' | 'dark' | 'system';

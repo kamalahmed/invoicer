@@ -16,12 +16,8 @@ export function pdfFilename(inv: Invoice): string {
 }
 
 /**
- * Render a DOM node (the invoice paper) to a downloadable PDF.
- *
- * Uses html2canvas for the render and jsPDF for pagination. The node is
- * captured at 2× scale for crisp print output, compressed as JPEG (keeps
- * file size tiny — typical one-page invoice is 80-200 KB), and laid out
- * across multiple Letter-size pages if the content is tall.
+ * Render a DOM node (the invoice paper) to a downloadable PDF
+ * using html2canvas at 2× scale and jsPDF for Letter-size pagination.
  */
 export async function downloadInvoicePdf(
   node: HTMLElement,

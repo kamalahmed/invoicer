@@ -16,15 +16,11 @@ export function SignaturePad({ value, onChange, width = 300, height = 110 }: Sig
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
-  // Tracks the value we just emitted so the sync effect can ignore it and
-  // leave the user's live strokes intact (instead of clearing and redrawing
-  // the trimmed image smaller and centred, which used to cause a jump).
+  // Ignore self-emitted values to avoid clearing the user's live strokes.
   const emittedRef = useRef<string | undefined>(value);
   const [isEmpty, setIsEmpty] = useState(!value);
 
-  // Sync the canvas with `value` only for external changes (load / clear /
-  // uploaded image). Self-emitted values are skipped to avoid the post-stroke
-  // jump described above.
+  // Sync canvas with `value` only for external changes.
   useEffect(() => {
     if (value === emittedRef.current) return;
     const c = canvasRef.current;

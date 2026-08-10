@@ -4,22 +4,12 @@ import type { StateStorage } from 'zustand/middleware';
 /**
  * Zustand `persist` storage adapter backed by IndexedDB (via idb-keyval).
  *
- * Why IndexedDB instead of localStorage?
- * - Larger quota (browsers typically allow 50%+ of available disk vs the
- *   ~5 MB cap on localStorage). Important once a user accumulates many
- *   invoices with logo + signature data URLs.
- * - Better candidate for `navigator.storage.persist()`, which asks the
- *   browser not to auto-evict under storage pressure.
+ * IndexedDB allows larger quotas than localStorage (~5 MB cap) — important
+ * once a user accumulates many invoices with logo + signature data URLs.
  *
- * Important: clearing "cache" in browsers does NOT touch either localStorage
- * or IndexedDB — that's the HTTP cache only. Both stores are wiped only by
- * an explicit "Clear site data / cookies and site data" action. So the
- * benefit is durability under storage pressure, not protection from manual
- * clearing.
- *
- * One-time legacy migration: on first read of a key, if IndexedDB is empty
- * but localStorage has the same key (data from previous releases), copy it
- * over and remove the localStorage entry to avoid two sources of truth.
+ * On first read, if IndexedDB is empty but localStorage has the key
+ * (data from previous releases), it migrates the value over and removes
+ * the localStorage entry.
  */
 export const idbStorage: StateStorage = {
   getItem: async (name) => {
@@ -79,11 +69,8 @@ export const idbStorage: StateStorage = {
 };
 
 /**
- * Best-effort request that the browser mark our storage as persistent so
- * it isn't evicted under storage pressure. Some browsers grant this
- * automatically based on engagement signals (PWA installation, frequent
- * visits); others gate it behind a permission. Either way the call is
- * harmless and idempotent.
+ * Ask the browser to mark storage as persistent so it isn't evicted
+ * under storage pressure. Harmless and idempotent.
  */
 export async function requestPersistentStorage(): Promise<boolean> {
   if (typeof navigator === 'undefined') return false;

@@ -5,17 +5,6 @@ import {
   type BeforeInstallPromptEvent,
 } from '../utils/install';
 
-/**
- * Toolbar affordance for installing the PWA.
- *
- * - Chrome / Edge / Android: captures `beforeinstallprompt` and surfaces a
- *   button that triggers the native install dialog when clicked.
- * - iOS Safari: shows a small button that opens a hint popover explaining
- *   the manual Share → Add to Home Screen flow (Apple does not provide an
- *   automatic prompt).
- * - Already-installed (standalone): renders nothing.
- * - No support at all: renders nothing.
- */
 export function InstallButton() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);

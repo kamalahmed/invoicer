@@ -3,16 +3,7 @@ import { DEFAULT_TAX } from './tax';
 
 /**
  * Normalize an invoice that may have been persisted under an older schema.
- *
- * Over the project's lifetime the Invoice shape has grown (added `tax`,
- * `columnVisibility`, `wideColumn`, `columnLabels`, new style flags). Rather
- * than rely on scattered runtime `resolve*()` fallbacks forever, this helper
- * produces an invoice that matches the current shape — with sensible
- * defaults for anything missing.
- *
- * It is intentionally permissive: it accepts `any`, only reads the fields
- * it knows about, and never throws. Unknown fields are preserved so a
- * downgrade doesn't destroy data.
+ * Accepts `any`, only reads known fields, never throws.
  */
 export function migrateInvoice(raw: unknown): Invoice {
   const src = (raw ?? {}) as Partial<Invoice> & {

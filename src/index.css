@@ -91,10 +91,9 @@ body {
   animation: focus-pulse 1200ms ease-out 1;
 }
 
-/* Clickable zones on the invoice preview — dashed hover outline reveals
-   that the area is editable without cluttering the page on first load.
-   The invoice paper itself stays white in both themes (it represents a
-   printed document), so these edit-zone styles don't need dark variants. */
+/* Clickable zones on the invoice preview — dashed hover outline
+ * shows that the area is editable. Invoice paper stays white in both
+ * themes since it represents a printed document. */
 .edit-zone {
   position: relative;
   cursor: pointer;
@@ -108,16 +107,8 @@ body {
   background-color: rgba(14, 165, 233, 0.04);
 }
 
-/* Custom component classes.
- *
- * Wrapped in `@layer components` so they go into Tailwind's components
- * layer (loaded BEFORE utilities). Without the layer, these rules would
- * land after `@tailwind utilities;` and — having equal specificity to
- * single-class utilities — would override them on cascade order alone.
- * That caused buttons with `class="btn-ghost hidden md:inline-flex"` to
- * stay visible below `md:` because `.btn`'s `inline-flex` was overriding
- * `.hidden`.
- */
+/* Custom component classes in Tailwind's components layer
+ * so they load before utilities and don't override on cascade order. */
 @layer components {
   .field-label {
     @apply block text-xs font-semibold uppercase tracking-wide text-ink-muted mb-1

@@ -11,11 +11,7 @@ export interface ResolvedColumns {
   wide: WideColumn;
 }
 
-/**
- * Resolve which line-item table columns are visible, honouring the user's
- * toggles plus the sensible defaults (calendar days only in days mode, tax
- * column tied to tax mode, discount column tied to `style.showDiscountColumn`).
- */
+/** Resolve visible line-item columns from user toggles and defaults. */
 export function resolveColumns(inv: Invoice): ResolvedColumns {
   const v = inv.columnVisibility ?? {};
   const days = inv.calcMode === 'days';
@@ -35,10 +31,7 @@ export function resolveColumns(inv: Invoice): ResolvedColumns {
   };
 }
 
-/**
- * Approx pixel widths used by the <colgroup>. The wide column is rendered
- * with `width: auto` and absorbs remaining space.
- */
+/** Approx pixel widths for the <colgroup>. The wide column gets `auto`. */
 export const COLUMN_WIDTHS = {
   serial: 72,
   calendarDays: 104,

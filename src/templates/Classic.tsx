@@ -14,9 +14,8 @@ import { hasValue, lineQty, lineTotalStr, prettyDate, renderMultiline } from './
 import { EditZone } from '../components/ui/EditZone';
 
 /**
- * Classic — a clean white-paper layout styled like the attached sample:
- * sender at top-left, centered "INVOICE" title, client on the left, meta on the
- * right, days-worked table, totals block, bank details, signature block.
+ * Classic — white-paper layout with sender top-left, centered INVOICE title,
+ * client left, meta right, items table, totals block, bank details, signatures.
  */
 export default function Classic({ invoice }: TemplateProps) {
   const { sender, client, meta, items, totals, bank, signatories, style, calcMode } = invoice;
